@@ -5,7 +5,8 @@ ChatGPT Plus就能使用ChatGPT 4.0强大的功能，目前，官方价格是20�
 
 由于各种众所周知的原因而无法分享当前AI红利，今天就分享一下和GPT4相关的几个方案。
 
-目前注册ChatGPT已经比较简化，已无需国外手机号，只需一个科学环境和国外邮箱（推荐Gmail）,访问：https://chat.openai.com/auth/login，简单注册即可，这里不展开了。
+目前注册ChatGPT已经比较简化，已无需国外手机号，只需一个科学环境和国外邮箱（推荐Gmail）
+访问：https://chat.openai.com/auth/login，简单注册即可，这里不展开了。
 
 国内使用ChatGPT有以下几种方式：
 使用VPN：通过合法的VPN服务，可以正常访问ChatGPT官网并注册账号使用。
