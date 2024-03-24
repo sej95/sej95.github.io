@@ -10726,7 +10726,7 @@ WOW!TV,http://cdn.elsalvadordigital.com:1935/wowtv/wowtv/playlist.m3u8
 智利 Thema Televisión (La Serena),https://unlimited1-us.dps.live/thema/thema.smil/playlist.m3u8
 智利 Universidad Autónoma Temuco (UATV),https://unlimited1-us.dps.live/uatv/uatv.smil/playlist.m3u8
 	
-🈲私人频道_110,#genre
+🈲私人频道_110,#genre#
 	
 
 ⏰其它测试,#genre#
