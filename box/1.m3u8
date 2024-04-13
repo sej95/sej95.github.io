@@ -21,7 +21,7 @@
 //"lives":[{"group":"redirect","channels":[{"name":"live","urls":["proxy://do=live&type=txt&ext=aHR0cHM6Ly9hZ2l0LmFpL3NlamluYW4vYXBwL3Jhdy9icmFuY2gvYm94L3R2L2xpdmUudHh0"]}]}],
 //"wallpaper":"https://agit.ai/sejinan/app/raw/branch/box/api.php",
 
-"lives":[{"name":"live","type":0,"url":"https://github.com/sej95/sej95.github.io/raw/main/box/live.txt","playerType":1,"ua":"okhttp/3.12.13","epg":"http://epg.112114.xyz/?ch={name}&date={date}","logo":"https://epg.112114.xyz/logo/{name}.png"}],
+"lives":[{"name":"live","type":0,"url":"https://github.com/sej95/sej95.github.io/raw/main/box/live.txt","playerType":1,"ua":"okhttp/3.12.13","epg":"http://diyp.112114.xyz/?ch={name}&date={date}","logo":"https://epg.112114.xyz/logo/{name}.png"}],
 //"lives":[{"name":"live","type":0,"url":"https://agit.ai/sejinan/app/raw/branch/box/tv/live.txt","playerType":1,"ua":"okhttp/3.12.13","epg":"http://epg.112114.xyz/?ch={name}&date={date}","logo":"https://epg.112114.xyz/logo/{name}.png"}],
 //"lives":[{"name":"live","type":0,"url":"http://我不是肥猫.love:63/TV/tvzb.txt","playerType":1,"ua":"okhttp/3.12.13","epg":"http://epg.112114.xyz/?ch={name}&date={date}","logo":"https://epg.112114.xyz/logo/{name}.png"}],
 
