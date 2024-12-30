@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<!-- saved from url=(0029)https://tts.pyvideotrans.com/ -->
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  
+<html>
+<head>
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta name="description" content="在线免费的语音合成、文字转语音、文字合成配音服务，基于edge-tts语音合成服务提供，无需登录无需注册，在线免费合成语音">
-	<meta name="keyword" content="语音合成,文字合成,文字配音,合成语音,edge-tts,pyvideotrans">
+	<meta name="description" content="在线免费的语音合成、文字转语音、文字合成配音服务，基于edge-tts语音合成服务提供，无需登录无需注册，在线免费合成语音"/>
+	<meta name="keyword" content="语音合成,文字合成,文字配音,合成语音,edge-tts,pyvideotrans"/>
   <title>语音合成-文字转语音-srt字幕转语音-tts.pyvideotrans.com</title>
   <link href="./output.css" rel="stylesheet">
   <script src="./vue.js"></script>
@@ -49,13 +49,275 @@
 </head>
 <body class="bg-gray-100 font-sans">
 	<ul id="layui-nav" class="layui-nav">
-        <li class="layui-nav-item"><a href="https://pyvideotrans.com/">pyVideoTrans</a></li>
-        <li class="layui-nav-item"><a href="https://tool.pyvideotrans.com/">视频工具箱</a></li>
-	<li class="layui-nav-item"><a href="https://stt.pyvideotrans.com/">语音识别</a></li>
-        <li class="layui-nav-item "><a href="https://srt.pyvideotrans.com/">字幕翻译</a></li>
-	<li class="layui-nav-item layui-this"><a href="https://tts.pyvideotrans.com/">语音合成</a></li>
+        <li class="layui-nav-item"><a href="https://pyvideotrans.com">pyVideoTrans</a></li>
+        <li class="layui-nav-item"><a href="https://tool.pyvideotrans.com" >视频工具箱</a></li>
+	<li class="layui-nav-item"><a href="https://stt.pyvideotrans.com">语音识别</a></li>
+        <li class="layui-nav-item "><a href="https://srt.pyvideotrans.com" >字幕翻译</a></li>
+	<li class="layui-nav-item layui-this"><a href="https://tts.pyvideotrans.com">语音合成</a></li>
 		</ul>
-<div class="container mx-auto p-4 md:p-8" id="app" data-v-app=""><h1 class="text-3xl font-bold mb-2 text-center text-gray-800">文字合成语音/SRT字幕转语音</h1><div class="bg-white rounded-lg shadow-md p-6 mb-6"><div class="mb-4"><label for="fileInput" class="block text-gray-700 font-medium mb-2">选择想合成语音的文件 (srt/txt):</label><input type="file" id="fileInput" accept=".srt,.txt" class="w-full border border-gray-300 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></div><div class="mb-4"><label for="textInput" class="block font-medium mb-2">输入文本<span class="ms-2 text-xs text-gray-700">行尾加<code>[50]</code>代表添加50毫秒静音，<code>[500]</code>代表加500毫秒静音，中括号内数字代表静音毫秒数</span></label><textarea placeholder="选择txt文本或srt字幕上传，或直接在此输入要配音的文字" id="textInput" rows="5" class="w-full border border-gray-300 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"></textarea></div></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div class="bg-white rounded-lg shadow-md p-6"><label for="language" class="block text-gray-700 font-medium mb-2">文本语言:</label><select id="language" class="w-full border border-gray-300 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"><option value="zh">中文</option><option value="en">英语</option><option value="ja">日语</option><option value="ko">韩语</option><option value="fr">法语</option><option value="de">德语</option><option value="ru">俄罗斯语</option><option value="es">西班牙语</option><option value="vi">越南语</option><option value="th">泰国语</option><option value="ar">阿拉伯语</option><option value="bn">孟加拉语</option><option value="cs">捷克语</option><option value="nl">荷兰语</option><option value="he">希伯来语</option><option value="hi">印地语</option><option value="hu">匈牙利语</option><option value="id">印尼语</option><option value="it">意大利语</option><option value="kk">哈萨克斯坦</option><option value="ms">马来西亚语</option><option value="pl">波兰语</option><option value="pt">葡萄牙语</option><option value="sv">瑞典语</option><option value="tr">土耳其语</option><option value="uk">乌克兰语</option></select></div><div class="bg-white rounded-lg shadow-md p-6"><div class="flex"><label for="voice" class="block text-gray-700 font-medium mb-2">配音角色</label> (<span id="shiting" class="cursor-pointer">试听</span>) </div><select id="voice" class="w-full border border-gray-300 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"><option value="zh-HK-HiuGaaiNeural">HiuGaaiNeural</option><option value="zh-HK-HiuMaanNeural">HiuMaanNeural</option><option value="zh-HK-WanLungNeural">WanLungNeural</option><option value="zh-CN-XiaoxiaoNeural">XiaoxiaoNeural</option><option value="zh-CN-XiaoyiNeural">XiaoyiNeural</option><option value="zh-CN-YunjianNeural">YunjianNeural</option><option value="zh-CN-YunxiNeural">YunxiNeural</option><option value="zh-CN-YunxiaNeural">YunxiaNeural</option><option value="zh-CN-YunyangNeural">YunyangNeural</option><option value="zh-CN-liaoning-XiaobeiNeural">XiaobeiNeural</option><option value="zh-TW-HsiaoChenNeural">HsiaoChenNeural</option><option value="zh-TW-YunJheNeural">YunJheNeural</option><option value="zh-TW-HsiaoYuNeural">HsiaoYuNeural</option><option value="zh-CN-shaanxi-XiaoniNeural">XiaoniNeural</option></select></div></div><div class="grid grid-cols-1 md:grid-cols-4 gap-2 mt-4"><div class="bg-white rounded-lg shadow-md p-6"><label for="speed" class="block text-gray-700 font-medium mb-2">语速 (0.1 -&gt; 5.0):</label><div class="flex items-center"><input type="range" id="speed" min="0.1" max="5.0" step="0.1" class="w-full mr-2"><span class="text-gray-600">1</span></div></div><div class="bg-white rounded-lg shadow-md p-6"><label for="pitch" class="block text-gray-700 font-medium mb-2">音调 (-100 -&gt; +100):</label><div class="flex items-center"><input type="range" id="pitch" min="-100" max="100" class="w-full mr-2"><span class="text-gray-600">0</span></div></div><div class="bg-white rounded-lg shadow-md p-6"><label for="volume" class="block text-gray-700 font-medium mb-2">音量 (0.1 -&gt; 5):</label><div class="flex items-center"><input type="range" id="volume" min="0.1" step="0.1" max="5" class="w-full mr-2"><span class="text-gray-600">1</span></div></div><div class="bg-white rounded-lg shadow-md p-6"><label for="style" class="block text-gray-700 font-medium mb-2">语气(部分不起作用):</label><select id="style" class="w-full border border-gray-300 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"><option value="friendly">friendly</option><option value="advertisement_upbeat">advertisement_upbeat</option><option value="affectionate">affectionate</option><option value="angry">angry</option><option value="assistant">assistant</option><option value="calm">calm</option><option value="chat">chat</option><option value="cheerful">cheerful</option><option value="customerservice">customerservice</option><option value="depressed">depressed</option><option value="disgruntled">disgruntled</option><option value="documentary-narration">documentary-narration</option><option value="embarrassed">embarrassed</option><option value="empathetic">empathetic</option><option value="envious">envious</option><option value="excited">excited</option><option value="fearful">fearful</option><option value="gentle">gentle</option><option value="hopeful">hopeful</option><option value="lyrical">lyrical</option><option value="narration-professional">narration-professional</option><option value="narration-relaxed">narration-relaxed</option><option value="newscast">newscast</option><option value="newscast-casual">newscast-casual</option><option value="newscast-formal">newscast-formal</option><option value="poetry-reading">poetry-reading</option><option value="sad">sad</option><option value="serious">serious</option><option value="shouting">shouting</option><option value="sports_commentary">sports_commentary</option><option value="sports_commentary_excited">sports_commentary_excited</option><option value="whispering">whispering</option><option value="terrified">terrified</option><option value="unfriendly">unfriendly</option></select></div></div><div id="audioContainer" class="my-3 text-center bg-white flex justify-center py-3"><audio id="audioElement" src="blob:https://tts.pyvideotrans.com/7f2af980-e5e2-4ab5-a185-ad587c757f2a" controls="" autoplay=""></audio><button id="downloadButton" class="ml-2    font-bold py-2 px-4 rounded">下载</button></div><div class="mt-8 text-center"><button class="bg-red-500 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed">执行合成语音</button></div><table class="min-w-full divide-y divide-gray-200 my-4"><thead class="bg-gray-50"><tr><th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">语气风格</th><th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">风格说明</th></tr></thead><tbody class="bg-white divide-y divide-gray-200"><tr><td class="px-6 py-4 whitespace-nowrap"><code>friendly</code></td><td class="px-6 py-4 text-sm text-gray-500">表达一种愉快、怡人且温暖的语气。 听起来很真诚且满怀关切。 </td></tr><tr><td class="px-6 py-4 whitespace-nowrap"><code>advertisement_upbeat</code></td><td class="px-6 py-4 text-sm text-gray-500">用兴奋和精力充沛的语气推广产品或服务。</td></tr><tr><td class="px-6 py-4 whitespace-nowrap"><code>affectionate</code></td><td class="px-6 py-4 text-sm text-gray-500">以较高的音调和音量表达温暖而亲切的语气。 说话者处于吸引听众注意力的状态。 说话者的个性往往是讨喜的。</td></tr><tr><td class="px-6 py-4 whitespace-nowrap"><code>angry</code></td><td class="px-6 py-4 text-sm text-gray-500">表达生气和厌恶的语气。</td></tr><tr><td class="px-6 py-4 whitespace-nowrap"><code>assistant</code></td><td class="px-6 py-4 text-sm text-gray-500">数字助理用的是热情而轻松的语气。</td></tr><tr><td class="px-6 py-4 whitespace-nowrap"><code>calm</code></td><td class="px-6 py-4 text-sm text-gray-500">以沉着冷静的态度说话。 语气、音调和韵律与其他语音类型相比要统一得多。</td></tr><tr><td class="px-6 py-4 whitespace-nowrap"><code>chat</code></td><td class="px-6 py-4 text-sm text-gray-500">表达轻松随意的语气。</td></tr><tr><td class="px-6 py-4 whitespace-nowrap"><code>cheerful</code></td><td class="px-6 py-4 text-sm text-gray-500">表达积极愉快的语气。</td></tr><tr><td class="px-6 py-4 whitespace-nowrap"><code>customerservice</code></td><td class="px-6 py-4 text-sm text-gray-500">以友好热情的语气为客户提供支持。</td></tr><tr><td class="px-6 py-4 whitespace-nowrap"><code>depressed</code></td><td class="px-6 py-4 text-sm text-gray-500">调低音调和音量来表达忧郁、沮丧的语气。 </td></tr><tr><td class="px-6 py-4 whitespace-nowrap"><code>disgruntled</code></td><td class="px-6 py-4 text-sm text-gray-500">表达轻蔑和抱怨的语气。 这种情绪的语音表现出不悦和蔑视。 </td></tr><tr><td class="px-6 py-4 whitespace-nowrap"><code>documentary-narration</code></td><td class="px-6 py-4 text-sm text-gray-500">用一种轻松、感兴趣和信息丰富的风格讲述纪录片，适合纪录片、专家评论和类似内容。 </td></tr><tr><td class="px-6 py-4 whitespace-nowrap"><code>embarrassed</code></td><td class="px-6 py-4 text-sm text-gray-500">在说话者感到不舒适时表达不确定、犹豫的语气。 </td></tr><tr><td class="px-6 py-4 whitespace-nowrap"><code>empathetic</code></td><td class="px-6 py-4 text-sm text-gray-500">表达关心和理解。 </td></tr><tr><td class="px-6 py-4 whitespace-nowrap"><code>envious</code></td><td class="px-6 py-4 text-sm text-gray-500">当你渴望别人拥有的东西时，表达一种钦佩的语气。 </td></tr><tr><td class="px-6 py-4 whitespace-nowrap"><code>excited</code></td><td class="px-6 py-4 text-sm text-gray-500">表达乐观和充满希望的语气。 似乎发生了一些美好的事情，说话人对此满意。 </td></tr><tr><td class="px-6 py-4 whitespace-nowrap"><code>fearful</code></td><td class="px-6 py-4 text-sm text-gray-500">以较高的音调、较高的音量和较快的语速来表达恐惧、紧张的语气。 说话人处于紧张和不安的状态。 </td></tr><tr><td class="px-6 py-4 whitespace-nowrap"><code>gentle</code></td><td class="px-6 py-4 text-sm text-gray-500">以较低的音调和音量表达温和、礼貌和愉快的语气。 </td></tr><tr><td class="px-6 py-4 whitespace-nowrap"><code>hopeful</code></td><td class="px-6 py-4 text-sm text-gray-500">表达一种温暖且渴望的语气。 听起来像是会有好事发生在说话人身上。 </td></tr><tr><td class="px-6 py-4 whitespace-nowrap"><code>lyrical</code></td><td class="px-6 py-4 text-sm text-gray-500">以优美又带感伤的方式表达情感。 </td></tr><tr><td class="px-6 py-4 whitespace-nowrap"><code>narration-professional</code></td><td class="px-6 py-4 text-sm text-gray-500">以专业、客观的语气朗读内容。 </td></tr><tr><td class="px-6 py-4 whitespace-nowrap"><code>narration-relaxed</code></td><td class="px-6 py-4 text-sm text-gray-500">为内容阅读表达一种舒缓而悦耳的语气。 </td></tr><tr><td class="px-6 py-4 whitespace-nowrap"><code>newscast</code></td><td class="px-6 py-4 text-sm text-gray-500">以正式专业的语气叙述新闻。 </td></tr><tr><td class="px-6 py-4 whitespace-nowrap"><code>newscast-casual</code></td><td class="px-6 py-4 text-sm text-gray-500">以通用、随意的语气发布一般新闻。 </td></tr><tr><td class="px-6 py-4 whitespace-nowrap"><code>newscast-formal</code></td><td class="px-6 py-4 text-sm text-gray-500">以正式、自信和权威的语气发布新闻。 </td></tr><tr><td class="px-6 py-4 whitespace-nowrap"><code>poetry-reading</code></td><td class="px-6 py-4 text-sm text-gray-500">在读诗时表达出带情感和节奏的语气。 </td></tr><tr><td class="px-6 py-4 whitespace-nowrap"><code>sad</code></td><td class="px-6 py-4 text-sm text-gray-500">表达悲伤语气。 </td></tr><tr><td class="px-6 py-4 whitespace-nowrap"><code>serious</code></td><td class="px-6 py-4 text-sm text-gray-500">表达严肃和命令的语气。 说话者的声音通常比较僵硬，节奏也不那么轻松。 </td></tr><tr><td class="px-6 py-4 whitespace-nowrap"><code>shouting</code></td><td class="px-6 py-4 text-sm text-gray-500">表达一种听起来好像声音在远处或在另一个地方的语气，努力让别人听清楚。 </td></tr><tr><td class="px-6 py-4 whitespace-nowrap"><code>sports_commentary</code></td><td class="px-6 py-4 text-sm text-gray-500">表达一种既轻松又感兴趣的语气，用于播报体育赛事。 </td></tr><tr><td class="px-6 py-4 whitespace-nowrap"><code>sports_commentary_excited</code></td><td class="px-6 py-4 text-sm text-gray-500">用快速且充满活力的语气播报体育赛事精彩瞬间。 </td></tr><tr><td class="px-6 py-4 whitespace-nowrap"><code>whispering</code></td><td class="px-6 py-4 text-sm text-gray-500">表达一种柔和的语气，试图发出安静而柔和的声音。 </td></tr><tr><td class="px-6 py-4 whitespace-nowrap"><code>terrified</code></td><td class="px-6 py-4 text-sm text-gray-500">表达一种害怕的语气，语速快且声音颤抖。 听起来说话人处于不稳定的疯狂状态。 </td></tr><tr><td class="px-6 py-4 whitespace-nowrap"><code>unfriendly</code></td><td class="px-6 py-4 text-sm text-gray-500">表达一种冷淡无情的语气。</td></tr></tbody></table><footer class="bg-gray-100 mt-6 mb-2 py-4 mt-8"><div class="container mx-auto text-center text-gray-500 text-sm"> 版权所有 © 2023 pyvideotrans.com </div><div class="container mx-auto text-center text-gray-500 text-sm"><a href="https://pyvideotrans.com/">完整版功能支持语音识别、语音合成、字幕翻译、视频翻译，免费下载 https://pyvideotrans.com</a></div></footer></div>
+<div class="container mx-auto p-4 md:p-8" id="app">
+  <h1 class="text-3xl font-bold mb-2 text-center text-gray-800">文字合成语音/SRT字幕转语音</h1>
+
+  <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+      <div class="mb-4">
+        <label for="fileInput" class="block text-gray-700 font-medium mb-2">选择想合成语音的文件 (srt/txt):</label>
+        <input type="file" id="fileInput" @change="handleFileSelect" accept=".srt,.txt" class="w-full border border-gray-300 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+      </div>
+    <div class="mb-4">
+      <label for="textInput" class="block  font-medium mb-2 ">输入文本<span class="ms-2 text-xs text-gray-700">行尾加<code>[50]</code>代表添加50毫秒静音，<code>[500]</code>代表加500毫秒静音，中括号内数字代表静音毫秒数</span></label>
+      <textarea placeholder="选择txt文本或srt字幕上传，或直接在此输入要配音的文字" id="textInput" v-model="text" rows="5" class="w-full border border-gray-300 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
+    </div>
+  </div>
+
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <label for="language" class="block text-gray-700 font-medium mb-2">文本语言:</label>
+      <select id="language" v-model="selectedLanguage" class="w-full border border-gray-300 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <option v-for="(roles, language) in language_role" :value="language" :key="language">{{ names[language] }}</option>
+      </select>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md p-6" v-if="selectedLanguage">
+		<div class="flex">
+      <label for="voice" class="block text-gray-700 font-medium mb-2">配音角色</label>
+	  (<span id="shiting" class="cursor-pointer" @click="shiting">试听</span>)
+		
+		</div>
+      <select id="voice" v-model="selectedVoice" class="w-full border border-gray-300 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <option v-for="voice in voices" :value="voice" :key="voice">{{ voice.split('-').slice(-1)[0] }}</option>
+        </select>
+    </div>  
+ </div>
+
+
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-2 mt-4">
+
+	<div class="bg-white rounded-lg shadow-md p-6">
+        <label for="speed" class="block text-gray-700 font-medium mb-2">语速 (0.1 -&gt; 5.0):</label>
+        <div class="flex items-center">    
+		 <input type="range" id="speed" v-model.number="speed" min="0.1" max="5.0" step="0.1" class="w-full mr-2">
+					<span class="text-gray-600">{{ speed }}</span>
+		</div>
+    </div>    
+	<div class="bg-white rounded-lg shadow-md p-6">
+        <label for="pitch" class="block text-gray-700 font-medium mb-2">音调 (-100 -&gt; +100):</label>
+        <div class="flex items-center">
+          <input type="range" id="pitch" v-model.number="pitch" min="-100" max="100" class="w-full mr-2">
+          <span class="text-gray-600">{{ pitch }}</span>
+        </div>
+    </div>
+	<div class="bg-white rounded-lg shadow-md p-6">
+        <label for="volume" class="block text-gray-700 font-medium mb-2">音量 (0.1 -&gt; 5):</label>
+        <div class="flex items-center">
+          <input type="range" id="volume" v-model.volume="volume" min="0.1" step="0.1" max="5" class="w-full mr-2">
+          <span class="text-gray-600">{{ volume }}</span>
+        </div>
+    </div>
+	<div class="bg-white rounded-lg shadow-md p-6">
+        <label for="style" class="block text-gray-700 font-medium mb-2">语气(部分不起作用):</label>
+	<select id="style" v-model="selectedStyle" class="w-full border border-gray-300 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <option v-for="st in styles" :value="st" :key="st">{{ st }}</option>
+        </select>
+	</div>
+</div>
+	<div id="audioContainer" class="my-3 text-center bg-white flex justify-center py-3 "></div>
+	
+  <div class="mt-8 text-center">
+    <button @click="generateSpeech" :disabled="isGenerating" class="bg-red-500 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed">
+      {{ isGenerating ? '语音合成中...' : '执行合成语音' }}
+    </button>
+  </div>
+
+  
+    <table class="min-w-full divide-y divide-gray-200 my-4">
+    <thead class="bg-gray-50">
+      <tr>
+        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">语气风格</th>
+        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">风格说明</th>
+      </tr>
+    </thead>
+    <tbody class="bg-white divide-y divide-gray-200">
+      <tr>
+        <td class="px-6 py-4 whitespace-nowrap"><code>friendly</code></td>
+        <td class="px-6 py-4 text-sm text-gray-500">表达一种愉快、怡人且温暖的语气。 听起来很真诚且满怀关切。
+</td>
+      </tr>
+      <tr>
+        <td class="px-6 py-4 whitespace-nowrap"><code>advertisement_upbeat</code></td>
+        <td class="px-6 py-4 text-sm text-gray-500">用兴奋和精力充沛的语气推广产品或服务。</td>
+      </tr>
+      <tr>
+        <td class="px-6 py-4 whitespace-nowrap"><code>affectionate</code></td>
+        <td class="px-6 py-4 text-sm text-gray-500">以较高的音调和音量表达温暖而亲切的语气。 说话者处于吸引听众注意力的状态。 说话者的个性往往是讨喜的。</td>
+      </tr>
+      <tr>
+        <td class="px-6 py-4 whitespace-nowrap"><code>angry</code></td>
+        <td class="px-6 py-4 text-sm text-gray-500">表达生气和厌恶的语气。</td>
+      </tr>
+      <tr>
+        <td class="px-6 py-4 whitespace-nowrap"><code>assistant</code></td>
+        <td class="px-6 py-4 text-sm text-gray-500">数字助理用的是热情而轻松的语气。</td>
+      </tr>
+      <tr>
+        <td class="px-6 py-4 whitespace-nowrap"><code>calm</code></td>
+        <td class="px-6 py-4 text-sm text-gray-500">以沉着冷静的态度说话。 语气、音调和韵律与其他语音类型相比要统一得多。</td>
+      </tr>
+      <tr>
+        <td class="px-6 py-4 whitespace-nowrap"><code>chat</code></td>
+        <td class="px-6 py-4 text-sm text-gray-500">表达轻松随意的语气。</td>
+      </tr>
+      <tr>
+        <td class="px-6 py-4 whitespace-nowrap"><code>cheerful</code></td>
+        <td class="px-6 py-4 text-sm text-gray-500">表达积极愉快的语气。</td>
+      </tr>
+      <tr>
+        <td class="px-6 py-4 whitespace-nowrap"><code>customerservice</code></td>
+        <td class="px-6 py-4 text-sm text-gray-500">以友好热情的语气为客户提供支持。</td>
+      </tr>
+	  
+	  
+	  <tr>
+        <td class="px-6 py-4 whitespace-nowrap"><code>depressed</code></td>
+        <td class="px-6 py-4 text-sm text-gray-500">调低音调和音量来表达忧郁、沮丧的语气。
+</td>
+      </tr>
+	  <tr>
+        <td class="px-6 py-4 whitespace-nowrap"><code>disgruntled</code></td>
+        <td class="px-6 py-4 text-sm text-gray-500">表达轻蔑和抱怨的语气。 这种情绪的语音表现出不悦和蔑视。
+</td>
+      </tr>
+	  <tr>
+        <td class="px-6 py-4 whitespace-nowrap"><code>documentary-narration</code></td>
+        <td class="px-6 py-4 text-sm text-gray-500">用一种轻松、感兴趣和信息丰富的风格讲述纪录片，适合纪录片、专家评论和类似内容。
+</td>
+      </tr>
+	  <tr>
+        <td class="px-6 py-4 whitespace-nowrap"><code>embarrassed</code></td>
+        <td class="px-6 py-4 text-sm text-gray-500">在说话者感到不舒适时表达不确定、犹豫的语气。
+</td>
+      </tr>
+	  <tr>
+        <td class="px-6 py-4 whitespace-nowrap"><code>empathetic</code></td>
+        <td class="px-6 py-4 text-sm text-gray-500">表达关心和理解。
+</td>
+      </tr>
+	  <tr>
+        <td class="px-6 py-4 whitespace-nowrap"><code>envious</code></td>
+        <td class="px-6 py-4 text-sm text-gray-500">当你渴望别人拥有的东西时，表达一种钦佩的语气。
+</td>
+      </tr>
+	  <tr>
+        <td class="px-6 py-4 whitespace-nowrap"><code>excited</code></td>
+        <td class="px-6 py-4 text-sm text-gray-500">表达乐观和充满希望的语气。 似乎发生了一些美好的事情，说话人对此满意。
+</td>
+      </tr>
+	  <tr>
+        <td class="px-6 py-4 whitespace-nowrap"><code>fearful</code></td>
+        <td class="px-6 py-4 text-sm text-gray-500">以较高的音调、较高的音量和较快的语速来表达恐惧、紧张的语气。 说话人处于紧张和不安的状态。
+</td>
+      </tr>
+	  <tr>
+        <td class="px-6 py-4 whitespace-nowrap"><code>gentle</code></td>
+        <td class="px-6 py-4 text-sm text-gray-500">以较低的音调和音量表达温和、礼貌和愉快的语气。
+</td>
+      </tr>
+	  <tr>
+        <td class="px-6 py-4 whitespace-nowrap"><code>hopeful</code></td>
+        <td class="px-6 py-4 text-sm text-gray-500">表达一种温暖且渴望的语气。 听起来像是会有好事发生在说话人身上。
+</td>
+      </tr>
+	  <tr>
+        <td class="px-6 py-4 whitespace-nowrap"><code>lyrical</code></td>
+        <td class="px-6 py-4 text-sm text-gray-500">以优美又带感伤的方式表达情感。
+</td>
+      </tr>
+	  <tr>
+        <td class="px-6 py-4 whitespace-nowrap"><code>narration-professional</code></td>
+        <td class="px-6 py-4 text-sm text-gray-500">以专业、客观的语气朗读内容。
+</td>
+      </tr>
+	  <tr>
+        <td class="px-6 py-4 whitespace-nowrap"><code>narration-relaxed</code></td>
+        <td class="px-6 py-4 text-sm text-gray-500">为内容阅读表达一种舒缓而悦耳的语气。
+</td>
+      </tr>
+	  <tr>
+        <td class="px-6 py-4 whitespace-nowrap"><code>newscast</code></td>
+        <td class="px-6 py-4 text-sm text-gray-500">以正式专业的语气叙述新闻。
+</td>
+      </tr>
+	  <tr>
+        <td class="px-6 py-4 whitespace-nowrap"><code>newscast-casual</code></td>
+        <td class="px-6 py-4 text-sm text-gray-500">以通用、随意的语气发布一般新闻。
+</td>
+      </tr>
+	  <tr>
+        <td class="px-6 py-4 whitespace-nowrap"><code>newscast-formal</code></td>
+        <td class="px-6 py-4 text-sm text-gray-500">以正式、自信和权威的语气发布新闻。
+</td>
+      </tr>
+	  
+	  
+	  <tr>
+        <td class="px-6 py-4 whitespace-nowrap"><code>poetry-reading</code></td>
+        <td class="px-6 py-4 text-sm text-gray-500">在读诗时表达出带情感和节奏的语气。
+</td>
+      </tr>
+	  <tr>
+        <td class="px-6 py-4 whitespace-nowrap"><code>sad</code></td>
+        <td class="px-6 py-4 text-sm text-gray-500">表达悲伤语气。
+</td>
+      </tr>
+	  <tr>
+        <td class="px-6 py-4 whitespace-nowrap"><code>serious</code></td>
+        <td class="px-6 py-4 text-sm text-gray-500">表达严肃和命令的语气。 说话者的声音通常比较僵硬，节奏也不那么轻松。
+</td>
+      </tr>
+	  <tr>
+        <td class="px-6 py-4 whitespace-nowrap"><code>shouting</code></td>
+        <td class="px-6 py-4 text-sm text-gray-500">表达一种听起来好像声音在远处或在另一个地方的语气，努力让别人听清楚。
+</td>
+      </tr>
+	  <tr>
+        <td class="px-6 py-4 whitespace-nowrap"><code>sports_commentary</code></td>
+        <td class="px-6 py-4 text-sm text-gray-500">表达一种既轻松又感兴趣的语气，用于播报体育赛事。
+</td>
+      </tr>
+	  <tr>
+        <td class="px-6 py-4 whitespace-nowrap"><code>sports_commentary_excited</code></td>
+        <td class="px-6 py-4 text-sm text-gray-500">用快速且充满活力的语气播报体育赛事精彩瞬间。
+</td>
+      </tr>
+	  <tr>
+        <td class="px-6 py-4 whitespace-nowrap"><code>whispering</code></td>
+        <td class="px-6 py-4 text-sm text-gray-500">表达一种柔和的语气，试图发出安静而柔和的声音。
+</td>
+      </tr>
+	  <tr>
+        <td class="px-6 py-4 whitespace-nowrap"><code>terrified</code></td>
+        <td class="px-6 py-4 text-sm text-gray-500">表达一种害怕的语气，语速快且声音颤抖。 听起来说话人处于不稳定的疯狂状态。
+</td>
+      </tr>
+      
+	  
+	  <tr>
+        <td class="px-6 py-4 whitespace-nowrap"><code>unfriendly</code></td>
+        <td class="px-6 py-4 text-sm text-gray-500">表达一种冷淡无情的语气。</td>
+      </tr>
+    </tbody>
+  </table>
+
+
+  <footer class="bg-gray-100 mt-6 mb-2 py-4 mt-8">
+    <div class="container mx-auto text-center text-gray-500 text-sm">
+      版权所有 © 2023 pyvideotrans.com 
+	  
+    </div>
+	<div class="container mx-auto text-center text-gray-500 text-sm"><a href="https://pyvideotrans.com">完整版功能支持语音识别、语音合成、字幕翻译、视频翻译，免费下载 https://pyvideotrans.com</a></div>
+  </footer>
+
+</div>
 
 <script>
   const app = Vue.createApp({
@@ -659,10 +921,8 @@
   return `${year}-${month}-${day}-${hours}-${minutes}-${seconds}.mp3`;
 }
 </script>
-<script charset="UTF-8" id="LA_COLLECT" src="https://sdk.51.la/js-sdk-pro.min.js"></script>
+<script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
 <script>LA.init({id:"KO5lYldwVUTyC8eE",ck:"KO5lYldwVUTyC8eE"})</script>
 	
-<script defer="" src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon="{&quot;rayId&quot;:&quot;8f990ffa0a9415d8&quot;,&quot;version&quot;:&quot;2024.10.5&quot;,&quot;r&quot;:1,&quot;token&quot;:&quot;e4ff68fecc844f89853aa4e0b895730c&quot;,&quot;serverTiming&quot;:{&quot;name&quot;:{&quot;cfExtPri&quot;:true,&quot;cfL4&quot;:true,&quot;cfSpeedBrain&quot;:true,&quot;cfCacheStatus&quot;:true}}}" crossorigin="anonymous"></script>
-
-
-</body></html>
+</body>
+</html>
