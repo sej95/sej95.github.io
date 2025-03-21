@@ -808,8 +808,8 @@
 		},
  async generateSpeech(listener_text) {
  console.log(listener_text)
-//        const workerUrl = 'https://ttsapi.pyvideotrans.com/v1/audio/speech';
-	const workerUrl = 'https://ttsapi.iuai.ltd/v1/audio/speech';
+        const workerUrl = 'https://ttsapi.pyvideotrans.com/v1/audio/speech';
+//	const workerUrl = 'https://ttsapi.iuai.ltd/v1/audio/speech';
         const parsedText = typeof listener_text==='string'?listener_text:this.parseText();
 		if(!this.selectedVoice || this.selectedVoice=='No'){
 			
