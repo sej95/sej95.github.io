@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>文本转语音生成器</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 20px }
+        .container { border: 1px solid #ddd; padding: 20px; border-radius: 8px }
+        input, select, button { margin: 10px 0; padding: 8px }
+        #audioPlayer { margin-top: 20px }
+        .loading { display: none; color: #666 }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>文本转语音生成器</h2>
+        
+        <!-- 输入区域 -->
+        <div>
+            <textarea id="inputText" rows="5" placeholder="输入要转换的文本..." 
+                      style="width: 100%"></textarea>
+        </div>
+
+        <!-- 控制选项 -->
+        <div>
+            <select id="voiceSelect">
+                <option value="zh-CN-XiaoxiaoNeural">中文普通话 - 晓晓</option>
+                <option value="en-US-JennyNeural">英语 - Jenny</option>
+                <option value="ja-JP-NanamiNeural">日语 - 七海</option>
+            </select>
+            
+            <button onclick="generateSpeech()">生成语音</button>
+        </div>
+
+        <!-- 加载提示 -->
+        <div class="loading" id="loading">
+            生成中，请稍候...
+        </div>
+
+        <!-- 音频播放 -->
+        <audio id="audioPlayer" controls></audio>
+    </div>
+
+    <script>
+        // 替换为你的 API Key 和 Endpoint
+        const API_KEY = "adgas213423235saeg";
+        const API_ENDPOINT = "https://ttsapi.iuai.ltd/v1/audio/speech";
+
+        async function generateSpeech() {
+            const inputText = document.getElementById('inputText').value;
+            const voice = document.getElementById('voiceSelect').value;
+            
+            // 显示加载状态
+            document.getElementById('loading').style.display = 'block';
+            
+            try {
+                // 调用语音合成 API
+                const response = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: "tts-1",
+                        input: inputText,
+                        voice: voice
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API 请求失败: ${response.status}`);
+                }
+
+                // 获取音频 Blob
+                const audioBlob = await response.blob();
+                const audioUrl = URL.createObjectURL(audioBlob);
+                
+                // 播放音频
+                const audioPlayer = document.getElementById('audioPlayer');
+                audioPlayer.src = audioUrl;
+                audioPlayer.play();
+
+            } catch (error) {
+                alert(`错误: ${error.message}`);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
