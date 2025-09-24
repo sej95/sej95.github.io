@@ -23,6 +23,9 @@
 ## 歌曲部分
 
 * 歌曲下载链接(通过album\_id)
+* http://trackercdnbj.kugou.com/i/v2/?album_audio_id=53214003&amp;behavior=play&amp;module=&amp;mtype=0&amp;cmd=26&amp;token=&amp;album_id=1952211&amp;userid=0&amp;hash=34c7777fffdd4fdf04e02af1f6857ca4&amp;pid=2&amp;vipType=65530&amp;version=9108&amp;area_code=1&amp;appid=1005&amp;mid=286974383886022203545511837994020015101&amp;key=0c68167f46e46ed953bd489f6fdc9120&amp;pidversion=3001&amp;with_res_tag=1
+
+http://trackercdnbj.kugou.com/i/v2/?album_audio_id=99121191&amp;behavior=play&amp;cmd=25&amp;album_id=6960309&amp;hash=b5a2d566c9de70422f5e5e7203054219&amp;userid=0&amp;pid=2&amp;version=9108&amp;area_code=1&amp;appid=1005&amp;key=407732fc325852538ca836581fe4e370&amp;pidversion=3001&amp;with_res_tag=1
 
 ## 排行榜部分
 
