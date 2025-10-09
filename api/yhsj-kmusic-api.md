@@ -61,25 +61,6 @@
 
 # 虾米
 
-[新歌](http://api.xiami.com/web?v=2.0&app_key=1&page=1&limit=20&_ksTS=1541734962429_75&callback=jsonp76&r=song/new)
-
-[排行榜详情,手机版的排行榜事固定的](http://api.xiami.com/web?v=2.0&app_key=1&id=101&page=1&limit=20&_ksTS=1542182419327_278&callback=jsonp279&r=rank/song-list)
-
-[歌单](http://api.xiami.com/web?v=2.0&app_key=1&_ksTS=1542181898864_80&callback=jsonp81&r=collect/recommend)
-
-[歌单详情](http://api.xiami.com/web?v=2.0&app_key=1&id=571981716&_ksTS=1542183248744_259&callback=jsonp260&r=collect/detail)
-
-[歌手分类](http://api.xiami.com/web?v=2.0&app_key=1&_ksTS=1542181949957_101&callback=jsonp102&r=artist/category)
-
-[歌手分类详情](http://api.xiami.com/web?v=2.0&app_key=1&class=1&type=1&_ksTS=1542181970327_116&callback=jsonp117&r=artist/hot-list)
-
-[歌手详情](http://api.xiami.com/web?v=2.0&app_key=1&id=2110037510&type=artistdetail&_ksTS=1542182040117_132&callback=jsonp133&r=artist/detail)
-
-[歌手音乐](http://api.xiami.com/web?v=2.0&app_key=1&id=2110037510&page=1&limit=20&_ksTS=1542182040119_146&callback=jsonp147&r=artist/hot-songs)
-
-[今日热搜](http://api.xiami.com/web?v=2.0&app_key=1&limit=50&_ksTS=1542182299696_261&callback=jsonp262&r=search/hot)
-
-[搜索](http://api.xiami.com/web?v=2.0&app_key=1&key=薛之谦&page=1&limit=20&_ksTS=1542182818596_141&callback=jsonp142&r=search/songs)
 
 # 咪咕音乐 
 
