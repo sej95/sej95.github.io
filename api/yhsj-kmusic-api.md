@@ -58,57 +58,6 @@
 
 # **百度音乐**
 
-##### 以下来自百度音乐wap版本
-
-[首页,今日推荐](http://musicapi.taihe.com/v1/restserver/ting?from=webapp_music&format=json&method=baidu.ting.song.userRecSongList)
-
-[首页,新歌速递](http://musicapi.taihe.com/v1/restserver/ting?from=webapp_music&format=json&method=baidu.ting.plaza.getRecommendAlbum&limit=3)
-
-[新歌速递,更多](http://musicapi.taihe.com/v1/restserver/ting?from=webapp_music&format=json&param=fljK1DRrtYdiZGwmdrZeOw%3D%3D&timestamp=1541562136&sign=eccf551a8d089ef825181a32daffe83e&method=baidu.ting.plaza.getRecommendAlbum)
-
-[首页,榜单,新歌](http://musicapi.taihe.com/v1/restserver/ting?from=webapp_music&format=json&method=baidu.ting.billboard.billList&type=1&size=6)
-
-[首页,榜单,热歌](http://musicapi.taihe.com/v1/restserver/ting?from=webapp_music&format=json&method=baidu.ting.billboard.billList&type=2&size=6)
-
-[首页,榜单,老歌](http://musicapi.taihe.com/v1/restserver/ting?from=webapp_music&format=json&method=baidu.ting.billboard.billList&type=22&size=5)
-
-[首页,热门歌单](http://musicapi.taihe.com/v1/restserver/ting?from=webapp_music&format=json&method=baidu.ting.diy.gedanHot&num=6)
-
-[首页,唱片墙](http://musicapi.taihe.com/v1/restserver/ting?from=webapp_music&format=json&param=vU3DVkBGzvqEnbJrU595f%2BIt0Ra4kYAFLKxoU9bHQ8OLdVTA0IJ29uIPn2%2BQdIfM&timestamp=1541561309&sign=f402335250ac53d689eef4f210c6ea87&method=baidu.ting.album.getMusicWallList)
-
-[唱片墙,更多](http://musicapi.taihe.com/v1/restserver/ting?from=webapp_music&format=json&param=huse%2BvuE7bcKKDgielStodONTn0iOOFoGn0GZaSQkELbwQ4HNFXZQOmwklB50ZNT&timestamp=1541562323&sign=886e1d83045c141a09b6afe1669751f9&method=baidu.ting.album.getMusicWallList)
-
-[首页,推荐MV](http://musicapi.taihe.com/v1/restserver/ting?from=webapp_music&format=json&method=baidu.ting.mv.searchMV&order=1&page_size=8&provider=1,11,12)
-
-[MV,更多](http://musicapi.taihe.com/v1/restserver/ting?from=webapp_music&format=json&method=baidu.ting.mv.searchMV&page_size=10&order=1&page_num=1&provider=1,11,12)
-
-[MV,详情](http://musicapi.taihe.com/v1/restserver/ting?from=webapp_music&format=json&method=baidu.ting.mv.playMV&mv_id=338082103)
-
-[首页,歌单类别](http://musicapi.taihe.com/v1/restserver/ting?from=webapp_music&format=json&param=HOiufU%2FQ5FkVZcXt6GX0uhYxVqZf2OLE%2FyPO8LCz4ec%3D&timestamp=1541559941&sign=0d0ebcacceda4eba7d3d141ac4333ebb&method=baidu.ting.ugcdiy.getChannels)
-
-[首页,歌单列表](http://musicapi.taihe.com/v1/restserver/ting?from=webapp_music&format=json&param=fXio0UXE5%2Fr9likrpciCtgEv3YHHOCzSF9bKecIrJZCd%2B095TRzmPKaL%2FqgMyzDBk9itG4OAT8EMos5hVX%2Bcbze%2FHCvD763%2BFAFMrnR5F1o%3D&timestamp=1541559941&sign=db7a068282e8df63c68b464e633980c7&method=baidu.ting.ugcdiy.getChanneldiy)
-
-[首页,热门歌手](http://musicapi.taihe.com/v1/restserver/ting?from=webapp_music&format=json&method=baidu.ting.artist.getList&offset=0&limit=20&order=1&area=0&sex=0&abc=%E7%83%AD%E9%97%A8)
-
-[首页,榜单](http://musicapi.taihe.com/v1/restserver/ting?from=webapp_music&format=json&method=baidu.ting.billboard.billCategory&kflag=0)
-
-[首页,搜索热词](http://musicapi.taihe.com/v1/restserver/ting?from=webapp_music&format=json&method=baidu.ting.search.hot&page_num=10)
-
-[搜索,关键词联想](http://musicapi.taihe.com/v1/restserver/ting?from=webapp_music&format=json&method=baidu.ting.search.catalogSug&query=%E8%96%9B%E4%B9%8B%E8%B0%A6)
-
-[搜索结果](http://musicapi.taihe.com/v1/restserver/ting?from=webapp_music&format=json&method=baidu.ting.search.merge&query=%E8%96%9B%E4%B9%8B%E8%B0%A6&page_size=20&page_no=0&type=0,1,2,5,7)
-
-[歌手信息](http://musicapi.taihe.com/v1/restserver/ting?from=webapp_music&format=json&method=baidu.ting.artist.getInfo&tinguid=2517)
-
-[歌手热门歌曲](http://musicapi.taihe.com/v1/restserver/ting?from=webapp_music&format=json&method=baidu.ting.artist.getSongList&tinguid=2517&order=2&limits=20&offset=0)
-
-[歌手专辑列表](http://musicapi.taihe.com/v1/restserver/ting?from=webapp_music&format=json&method=baidu.ting.artist.getAlbumList&tinguid=2517&limits=20)
-
-[专辑详情](http://musicapi.taihe.com/v1/restserver/ting?from=webapp_music&format=json&method=baidu.ting.album.getAlbumInfo&album_id=241838068)
-
-[相似歌手](http://musicapi.taihe.com/v1/restserver/ting?from=webapp_music&format=json&method=baidu.ting.artist.recommendArtist&ting_uid=2517&num=5)
-
-
 
 # 虾米
 
