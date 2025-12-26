@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: Visit URL and log result
         run: |
-          URL="https://my9.ltd/iplog.php"
+          URL="https://my9.ltd/tv/tv1288.php?auto=1"
           echo "开始访问 $URL"
           
           # 使用 curl 请求，并获取 HTTP 状态码
