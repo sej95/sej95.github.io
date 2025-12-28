@@ -24,7 +24,7 @@ jobs:
           
       - name: Download remote file
         run: |
-          REMOTE_URL="https://my9.ltd/tv/pllive.txt"
+          REMOTE_URL="http://my9.ltd/tv/pllive.txt"
           LOCAL_PATH="./sej95.github.io/pllive.txt"
           
           echo "开始下载文件: $REMOTE_URL"
