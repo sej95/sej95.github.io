@@ -1,157 +1,169 @@
-permissions:
-  contents: write
-name: Daily TV Source Update
+name: Update TV Source File
 
 on:
   schedule:
     - cron: '0 22 * * *'  # UTC 22:00 = 北京时间 06:00
-  workflow_dispatch:  # 允许手动运行
+  workflow_dispatch:
 
 permissions:
-  contents: write  # 授予写入权限
+  contents: write  # 授予写入仓库的权限
 
 jobs:
-  update-tv-source:
+  update-file:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Checkout repository
+    - name: Checkout repository with write permission
       uses: actions/checkout@v4
       with:
-        fetch-depth: 0  # 获取完整历史
+        # 使用默认的GITHUB_TOKEN，上面已经授予了write权限
+        token: ${{ secrets.GITHUB_TOKEN }}
         
-    - name: Setup Git
+    - name: Setup Git identity
       run: |
-        git config --global user.name "GitHub Actions Bot"
-        git config --global user.email "actions@github.com"
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
         
-    - name: Create directory
+    - name: Create directory structure
       run: |
+        echo "创建目录结构..."
         mkdir -p sej95.github.io
-        echo "目录创建完成"
         
     - name: Download TV source file
+      id: download
       run: |
-        echo "开始下载文件..."
-        cd sej95.github.io
+        echo "正在下载直播源文件..."
+        echo "URL: https://my9.ltd/tv/pllive.txt"
         
-        # 下载文件到当前目录
-        curl -s -L -o pllive.txt \
-             -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" \
-             -H "Referer: https://my9.ltd/" \
-             -H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8" \
-             --max-time 45 \
-             --retry 2 \
-             "https://my9.ltd/tv/pllive.txt"
-             
+        # 下载文件
+        curl -s -L -o "sej95.github.io/pllive.txt" \
+          -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" \
+          -H "Accept: text/plain,text/html" \
+          -H "Referer: https://my9.ltd/" \
+          --connect-timeout 30 \
+          --max-time 60 \
+          --retry 2 \
+          "https://my9.ltd/tv/pllive.txt"
+        
         # 验证下载结果
-        if [ -f "pllive.txt" ]; then
-          FILE_SIZE=$(wc -c < "pllive.txt")
-          FILE_LINES=$(wc -l < "pllive.txt")
-          echo "✅ 下载成功"
-          echo "文件大小: $FILE_SIZE 字节"
-          echo "文件行数: $FILE_LINES 行"
-          
-          # 显示文件前几行
-          echo "文件前5行内容:"
-          head -5 pllive.txt || echo "无法显示内容"
-          
-          # 检查是否为M3U格式
-          if head -1 pllive.txt | grep -q "^#EXTM3U"; then
-            echo "✅ 是有效的M3U格式文件"
-            # 统计频道数
-            CHANNEL_COUNT=$(grep -c "^#EXTINF" pllive.txt || echo "0")
-            echo "频道数量: $CHANNEL_COUNT"
+        if [ $? -eq 0 ] && [ -f "sej95.github.io/pllive.txt" ]; then
+          FILE_SIZE=$(wc -c < "sej95.github.io/pllive.txt")
+          if [ $FILE_SIZE -gt 0 ]; then
+            echo "✅ 下载成功"
+            echo "文件大小: ${FILE_SIZE} 字节"
+            echo "文件行数: $(wc -l < "sej95.github.io/pllive.txt") 行"
+            
+            # 输出到步骤结果
+            echo "downloaded=true" >> $GITHUB_OUTPUT
+            echo "file_size=${FILE_SIZE}" >> $GITHUB_OUTPUT
           else
-            echo "⚠️ 注意: 不是标准M3U格式"
+            echo "❌ 下载的文件为空"
+            echo "downloaded=false" >> $GITHUB_OUTPUT
           fi
         else
-          echo "❌ 文件下载失败"
+          echo "❌ 下载失败"
+          echo "downloaded=false" >> $GITHUB_OUTPUT
           exit 1
         fi
         
-    - name: Check for changes
-      id: check-changes
+    - name: Check for file changes
+      id: check-change
+      if: steps.download.outputs.downloaded == 'true'
       run: |
-        echo "检查文件变化..."
+        echo "检查文件是否有变化..."
         
-        # 检查文件是否存在
-        if [ ! -f "sej95.github.io/pllive.txt" ]; then
-          echo "文件不存在，需要创建"
-          echo "should_commit=true" >> $GITHUB_OUTPUT
-          exit 0
-        fi
+        # 先添加所有更改到暂存区，以便git diff能正确比较
+        git add -N "sej95.github.io/pllive.txt"
         
-        # 检查Git历史中是否有这个文件
-        if git ls-files --error-unmatch "sej95.github.io/pllive.txt" >/dev/null 2>&1; then
-          echo "文件已在Git中，比较变化..."
-          
-          # 计算新旧文件的哈希值
-          OLD_HASH=$(git hash-object "sej95.github.io/pllive.txt")
-          NEW_HASH=$(git hash-object "sej95.github.io/pllive.txt")
-          
-          if [ "$OLD_HASH" = "$NEW_HASH" ]; then
-            echo "文件无变化"
-            echo "should_commit=false" >> $GITHUB_OUTPUT
-          else
-            echo "检测到文件变化"
-            echo "should_commit=true" >> $GITHUB_OUTPUT
-          fi
+        # 检查是否有未暂存的更改
+        if git diff --quiet -- "sej95.github.io/pllive.txt" 2>/dev/null; then
+          echo "文件内容无变化"
+          echo "has_change=false" >> $GITHUB_OUTPUT
         else
-          echo "这是新文件"
-          echo "should_commit=true" >> $GITHUB_OUTPUT
+          echo "检测到文件变化"
+          echo "has_change=true" >> $GITHUB_OUTPUT
+          
+          # 显示简要变化信息
+          echo "变化摘要:"
+          git diff --stat -- "sej95.github.io/pllive.txt"
         fi
         
     - name: Commit and push if changed
-      if: steps.check-changes.outputs.should_commit == 'true'
+      if: steps.check-change.outputs.has_change == 'true'
       run: |
-        echo "提交文件到Git..."
+        echo "准备提交更改..."
+        
+        # 获取详细的文件信息
+        FILE_PATH="sej95.github.io/pllive.txt"
+        FILE_SIZE=$(wc -c < "$FILE_PATH")
+        FILE_LINES=$(wc -l < "$FILE_PATH")
+        
+        echo "文件信息:"
+        echo "- 大小: ${FILE_SIZE} 字节"
+        echo "- 行数: ${FILE_LINES} 行"
         
         # 添加文件到Git
-        git add sej95.github.io/pllive.txt
+        git add "$FILE_PATH"
         
-        # 获取文件信息用于提交信息
-        FILE_SIZE=$(wc -c < "sej95.github.io/pllive.txt")
-        FILE_LINES=$(wc -l < "sej95.github.io/pllive.txt")
+        # 创建有意义的提交信息
+        TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
+        COMMIT_MESSAGE="📺 更新直播源文件 - ${TIMESTAMP} UTC"
+        COMMIT_MESSAGE+="\n\n文件信息:"
+        COMMIT_MESSAGE+="\n- 大小: ${FILE_SIZE} 字节"
+        COMMIT_MESSAGE+="\n- 行数: ${FILE_LINES} 行"
         
-        # 创建提交信息
-        COMMIT_MSG="📺 更新直播源文件 - $(date '+%Y-%m-%d %H:%M') UTC"
-        COMMIT_MSG+=" (${FILE_LINES}行, ${FILE_SIZE}字节)"
+        # 提交更改（支持多行提交信息）
+        echo -e "$COMMIT_MESSAGE" | git commit -F - "$FILE_PATH"
         
-        # 提交
-        git commit -m "$COMMIT_MSG"
+        # 推送到仓库
+        echo "推送到GitHub仓库..."
+        git push origin HEAD:main
         
-        # 推送
-        echo "推送到GitHub..."
-        git push
+        echo "✅ 提交并推送完成"
         
-        echo "✅ 已成功提交和推送"
-        
-    - name: No changes needed
-      if: steps.check-changes.outputs.should_commit == 'false'
+    - name: No changes to commit
+      if: steps.check-change.outputs.has_change == 'false'
       run: |
-        echo "✅ 文件无变化，无需更新"
+        echo "✅ 文件无变化，无需提交"
         echo "当前文件信息:"
-        ls -la sej95.github.io/pllive.txt
-        echo "文件大小: $(wc -c < "sej95.github.io/pllive.txt") 字节"
+        ls -lh "sej95.github.io/pllive.txt"
         
-    - name: Final verification
+    - name: Final verification and summary
       run: |
-        echo "=== 最终验证 ==="
-        echo "当前目录结构:"
-        ls -la
+        echo "========================================"
+        echo "          任务执行完成摘要"
+        echo "========================================"
         
-        echo "目标目录结构:"
-        ls -la sej95.github.io/ || echo "目录不存在"
+        echo "执行时间: $(date '+%Y-%m-%d %H:%M:%S UTC')"
+        echo "对应北京时间: $(date -d '+8 hours' '+%Y-%m-%d %H:%M:%S')"
         
         if [ -f "sej95.github.io/pllive.txt" ]; then
-          echo "✅ 文件已成功保存"
+          echo ""
+          echo "✅ 文件已成功保存到仓库"
           echo "文件路径: sej95.github.io/pllive.txt"
           echo "文件大小: $(wc -c < "sej95.github.io/pllive.txt") 字节"
-          echo "文件MD5: $(md5sum sej95.github.io/pllive.txt | cut -d' ' -f1)"
+          echo "文件行数: $(wc -l < "sej95.github.io/pllive.txt") 行"
+          
+          # 检查是否为M3U格式
+          echo ""
+          echo "文件格式检查:"
+          if head -1 "sej95.github.io/pllive.txt" | grep -q "^#EXTM3U"; then
+            echo "✅ 是有效的M3U格式直播源"
+            CHANNEL_COUNT=$(grep -c "^#EXTINF" "sej95.github.io/pllive.txt" 2>/dev/null || echo "0")
+            echo "  包含频道数: ${CHANNEL_COUNT}"
+          else
+            echo "⚠️ 不是标准M3U格式"
+            echo "文件开头内容:"
+            head -3 "sej95.github.io/pllive.txt"
+          fi
         else
-          echo "❌ 错误: 文件未找到"
+          echo ""
+          echo "❌ 文件未找到"
         fi
         
+        echo ""
         echo "Git状态:"
-        git status --porcelain || echo "无法获取Git状态"
+        git status --short
+        
+        echo ""
+        echo "下次自动执行时间: UTC 22:00 (北京时间 06:00)"
