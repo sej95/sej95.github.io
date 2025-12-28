@@ -23,8 +23,8 @@ jobs:
         
     - name: Prepare directory
       run: |
-        mkdir -p sej95.github.io
-        echo "准备下载目录..."
+        mkdir -p tv
+        echo "创建 tv 目录..."
         
     - name: Download TV source file
       id: download
@@ -32,7 +32,7 @@ jobs:
         echo "开始下载直播源文件..."
         
         REMOTE_URL="https://my9.ltd/tv/pllive.txt"
-        LOCAL_PATH="sej95.github.io/pllive.txt"
+        LOCAL_PATH="tv/pllive.txt"
         TEMP_FILE="pllive_temp.txt"
         
         echo "目标URL: $REMOTE_URL"
@@ -115,7 +115,7 @@ jobs:
           else
             echo "❌ 所有下载方法都失败"
             
-            if [ -f "sej95.github.io/pllive.txt" ] && [ -s "sej95.github.io/pllive.txt" ]; then
+            if [ -f "tv/pllive.txt" ] && [ -s "tv/pllive.txt" ]; then
               echo "⚠️ 使用现有文件"
               echo "downloaded=true" >> $GITHUB_OUTPUT
               echo "method=existing" >> $GITHUB_OUTPUT
@@ -143,7 +143,7 @@ jobs:
       run: |
         echo "检查文件变化..."
         
-        FILE_PATH="sej95.github.io/pllive.txt"
+        FILE_PATH="tv/pllive.txt"
         
         if [ ! -f "$FILE_PATH" ]; then
           echo "❌ 文件不存在"
@@ -175,7 +175,7 @@ jobs:
       run: |
         echo "准备提交文件..."
         
-        FILE_PATH="sej95.github.io/pllive.txt"
+        FILE_PATH="tv/pllive.txt"
         
         if [ ! -f "$FILE_PATH" ]; then
           echo "❌ 文件不存在，无法提交"
@@ -194,7 +194,7 @@ jobs:
         
         git add "$FILE_PATH"
         
-        # 使用单行提交信息避免YAML问题
+        # 使用单行提交信息
         COMMIT_MSG="📺 更新直播源文件 - $(date '+%Y-%m-%d %H:%M UTC') | 大小: ${FILE_SIZE}字节 | 行数: ${FILE_LINES}行 | 方法: ${METHOD}"
         
         git commit -m "$COMMIT_MSG"
@@ -212,19 +212,23 @@ jobs:
         
         echo "执行时间: $(date)"
         
-        if [ -f "sej95.github.io/pllive.txt" ]; then
+        if [ -f "tv/pllive.txt" ]; then
           echo ""
           echo "✅ 文件状态:"
-          ls -lh "sej95.github.io/pllive.txt"
+          ls -lh "tv/pllive.txt"
           
           echo ""
           echo "📊 文件统计:"
-          echo "大小: $(wc -c < "sej95.github.io/pllive.txt") 字节"
-          echo "行数: $(wc -l < "sej95.github.io/pllive.txt") 行"
+          echo "大小: $(wc -c < "tv/pllive.txt") 字节"
+          echo "行数: $(wc -l < "tv/pllive.txt") 行"
           
           echo ""
           echo "📝 内容预览:"
-          head -5 "sej95.github.io/pllive.txt"
+          head -5 "tv/pllive.txt"
+          
+          echo ""
+          echo "📁 目录结构:"
+          find tv -type f
         else
           echo ""
           echo "❌ 错误: 文件未找到"
