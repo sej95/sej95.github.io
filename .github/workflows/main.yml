@@ -4,9 +4,6 @@ on:
   schedule:
     - cron: '0 22 * * *'  # 北京时间早上6点 = UTC 22:00
   workflow_dispatch:      # 可手动触发
-  push:                  # 当仓库有push时也触发
-    branches:
-      - main
 
 jobs:
   copy-file:
@@ -22,121 +19,173 @@ jobs:
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
           
-      - name: Download remote file
+      - name: Download with enhanced headers
         run: |
-          REMOTE_URL="http://my9.ltd/tv/pllive.txt"
+          REMOTE_URL="https://my9.ltd/tv/pllive.txt"
           LOCAL_PATH="./sej95.github.io/pllive.txt"
           
           echo "开始下载文件: $REMOTE_URL"
           echo "当前时间: $(date)"
           
-          # 创建目标目录（如果不存在）
+          # 创建目标目录
           mkdir -p ./sej95.github.io
           
-          echo "使用 wget 尝试下载文件..."
+          # 方法1：使用 wget 模拟浏览器访问
+          echo "=== 方法1：使用 wget 模拟浏览器 ==="
+          USER_AGENT="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
           
-          # 使用 wget 替代 curl，更稳定且错误信息更详细
-          if wget --timeout=30 --tries=3 --no-check-certificate -O "$LOCAL_PATH" "$REMOTE_URL"; then
-            echo "✅ 文件下载成功: $REMOTE_URL"
-            echo "文件已保存到: $LOCAL_PATH"
+          if wget --timeout=30 \
+                   --tries=3 \
+                   --user-agent="$USER_AGENT" \
+                   --header="Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8" \
+                   --header="Accept-Language: zh-CN,zh;q=0.9,en;q=0.8" \
+                   --header="Accept-Encoding: gzip, deflate, br" \
+                   --header="Connection: keep-alive" \
+                   --header="Upgrade-Insecure-Requests: 1" \
+                   --no-check-certificate \
+                   -O "$LOCAL_PATH.tmp" \
+                   "$REMOTE_URL"; then
+                    
+            echo "✅ wget 下载成功"
             
-            # 检查文件是否存在且有内容
-            if [ -s "$LOCAL_PATH" ]; then
-              FILE_SIZE=$(stat -f%z "$LOCAL_PATH" 2>/dev/null || stat -c%s "$LOCAL_PATH" 2>/dev/null || echo "unknown")
-              echo "文件大小: $FILE_SIZE 字节"
-              
-              # 显示前几行内容预览
-              echo "文件预览(前5行):"
-              head -5 "$LOCAL_PATH" 2>/dev/null || echo "无法显示文件内容"
-            else
-              echo "⚠️ 警告：下载的文件为空或不存在"
+          else
+            echo "❌ wget 下载失败，尝试 curl"
+            
+            # 方法2：使用 curl 模拟浏览器
+            echo "=== 方法2：使用 curl 模拟浏览器 ==="
+            curl -v -L \
+                 -o "$LOCAL_PATH.tmp" \
+                 -H "User-Agent: $USER_AGENT" \
+                 -H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8" \
+                 -H "Accept-Language: zh-CN,zh;q=0.9,en;q=0.8" \
+                 -H "Accept-Encoding: gzip, deflate, br" \
+                 -H "Connection: keep-alive" \
+                 -H "Upgrade-Insecure-Requests: 1" \
+                 -H "Referer: https://my9.ltd/" \
+                 -H "DNT: 1" \
+                 --max-time 30 \
+                 --retry 2 \
+                 --compressed \
+                 "$REMOTE_URL" 2>&1 | grep -E "HTTP/|Content-Type|Location|error" || true
+          fi
+          
+          # 验证下载的文件
+          if [ -f "$LOCAL_PATH.tmp" ] && [ -s "$LOCAL_PATH.tmp" ]; then
+            FILE_SIZE=$(wc -c < "$LOCAL_PATH.tmp")
+            echo "✅ 文件下载成功，大小: $FILE_SIZE 字节"
+            
+            # 检查文件内容（确保不是错误页面）
+            FILE_CONTENT=$(head -c 100 "$LOCAL_PATH.tmp")
+            
+            if echo "$FILE_CONTENT" | grep -q "<!DOCTYPE html>\|<html>\|404\|Not Found\|Error"; then
+              echo "❌ 下载的是HTML错误页面，不是目标文件"
+              echo "文件内容开头:"
+              head -5 "$LOCAL_PATH.tmp"
               exit 1
+            else
+              # 检查是否是M3U格式（直播源通常是M3U格式）
+              if head -1 "$LOCAL_PATH.tmp" | grep -q "^#EXTM3U"; then
+                echo "✅ 文件是有效的M3U格式"
+              else
+                echo "⚠️ 警告：文件不是标准M3U格式，但可能有效"
+              fi
+              
+              # 移动文件到目标位置
+              mv "$LOCAL_PATH.tmp" "$LOCAL_PATH"
+              echo "文件已保存到: $LOCAL_PATH"
+              
+              # 显示文件信息
+              echo "=== 文件详细信息 ==="
+              echo "行数: $(wc -l < "$LOCAL_PATH")"
+              echo "前3行内容:"
+              head -3 "$LOCAL_PATH"
+              echo "..."
             fi
           else
-            echo "❌ 文件下载失败: $REMOTE_URL"
-            echo "正在尝试使用 curl..."
+            echo "❌ 下载失败或文件为空"
             
-            # 尝试使用 curl 作为备用方案
-            HTTP_STATUS=$(curl -L -o "$LOCAL_PATH" -s -w "%{http_code}" --max-time 30 --retry 2 --insecure "$REMOTE_URL")
-            
-            if [ "$HTTP_STATUS" -eq 200 ] && [ -s "$LOCAL_PATH" ]; then
-              echo "✅ curl下载成功 (HTTP $HTTP_STATUS)"
-              FILE_SIZE=$(stat -f%z "$LOCAL_PATH" 2>/dev/null || stat -c%s "$LOCAL_PATH" 2>/dev/null || echo "unknown")
-              echo "文件大小: $FILE_SIZE 字节"
+            # 如果有旧文件，保留它
+            if [ -f "$LOCAL_PATH" ] && [ -s "$LOCAL_PATH" ]; then
+              echo "⚠️ 使用现有文件"
+              echo "现有文件大小: $(wc -c < "$LOCAL_PATH") 字节"
             else
-              echo "❌ 所有下载尝试都失败"
-              echo "HTTP状态码: $HTTP_STATUS"
-              echo "最后错误: curl返回代码 $?"
-              
-              # 尝试显示更多错误信息
-              curl -L -o /dev/null -v "$REMOTE_URL" 2>&1 | grep -i "error\|fail\|http" | head -10 || true
-              
-              # 如果目录不存在，创建一个空文件
-              if [ ! -f "$LOCAL_PATH" ]; then
-                echo "创建空文件占位..."
-                echo "# 文件下载失败 - $(date)" > "$LOCAL_PATH"
-              fi
+              echo "❌ 没有可用文件"
+              exit 1
             fi
           fi
           
-      - name: Check if file exists
+      - name: Compare and commit
         run: |
           LOCAL_PATH="./sej95.github.io/pllive.txt"
-          if [ -f "$LOCAL_PATH" ]; then
-            echo "✅ 文件存在: $LOCAL_PATH"
-            if [ -s "$LOCAL_PATH" ]; then
-              echo "文件大小: $(wc -c < "$LOCAL_PATH") 字节"
-              echo "文件行数: $(wc -l < "$LOCAL_PATH") 行"
-            else
-              echo "⚠️ 警告：文件存在但为空"
-            fi
-          else
-            echo "❌ 错误：文件不存在"
+          
+          if [ ! -f "$LOCAL_PATH" ]; then
+            echo "❌ 文件不存在"
             exit 1
           fi
           
-      - name: Commit and push if changes
-        run: |
-          LOCAL_PATH="./sej95.github.io/pllive.txt"
+          # 计算文件的MD5哈希来比较变化
+          NEW_MD5=$(md5sum "$LOCAL_PATH" | cut -d' ' -f1)
+          echo "当前文件MD5: $NEW_MD5"
           
-          # 确保文件存在
-          if [ ! -f "$LOCAL_PATH" ]; then
-            echo "❌ 错误：目标文件不存在，跳过提交"
-            exit 0
-          fi
-          
-          # 检查文件是否有变化
-          if git diff --quiet "$LOCAL_PATH"; then
-            echo "⚠️ 文件内容无变化，无需提交"
+          # 检查Git中文件的MD5
+          if git ls-files --error-unmatch "$LOCAL_PATH" >/dev/null 2>&1; then
+            OLD_MD5=$(git hash-object "$LOCAL_PATH")
+            echo "Git中文件MD5: $OLD_MD5"
+            
+            if [ "$NEW_MD5" = "$OLD_MD5" ]; then
+              echo "⚠️ 文件内容完全相同，无需提交"
+              exit 0
+            else
+              echo "🔄 检测到文件变化"
+              
+              # 显示变化统计
+              echo "变化统计:"
+              echo "新文件大小: $(wc -c < "$LOCAL_PATH") 字节"
+              echo "旧文件大小: $(git cat-file -s $OLD_MD5) 字节"
+            fi
           else
-            echo "检测到文件变化，提交更新..."
-            
-            # 显示具体变化（限制行数）
-            echo "文件差异预览:"
-            git diff "$LOCAL_PATH" | head -50
-            
-            # 添加文件
-            git add "$LOCAL_PATH"
-            
-            # 提交更改
-            COMMIT_MSG="🔄 自动更新 pllive.txt - $(date '+%Y-%m-%d %H:%M:%S UTC')"
-            git commit -m "$COMMIT_MSG" || echo "提交失败或无更改"
-            
-            # 推送到仓库
-            git push origin main || echo "推送失败，可能是权限问题或无新内容"
-            
-            echo "✅ 文件更新流程完成"
+            echo "📄 这是新文件"
           fi
           
-      - name: Clean up and summary
+          # 提交更改
+          echo "提交更改..."
+          git add "$LOCAL_PATH"
+          
+          # 生成有意义的提交信息
+          FILE_SIZE=$(wc -c < "$LOCAL_PATH")
+          FILE_LINES=$(wc -l < "$LOCAL_PATH")
+          TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S UTC')
+          
+          COMMIT_MSG="🔄 更新直播源 (${FILE_LINES}行, ${FILE_SIZE}字节) - ${TIMESTAMP}"
+          git commit -m "$COMMIT_MSG"
+          
+          # 推送到仓库
+          echo "推送到仓库..."
+          git push origin main
+          
+          echo "✅ 更新完成"
+          
+      - name: Final summary
         run: |
-          echo "=== 任务执行摘要 ==="
-          echo "完成时间: $(date)"
-          echo "UTC时间: $(date -u)"
-          echo "源URL: https://my9.ltd/tv/pllive.txt"
+          echo "=== 任务完成摘要 ==="
+          echo "完成时间: $(date '+%Y-%m-%d %H:%M:%S %Z')"
+          echo "源文件URL: https://my9.ltd/tv/pllive.txt"
           echo "本地路径: ./sej95.github.io/pllive.txt"
           
           if [ -f "./sej95.github.io/pllive.txt" ]; then
-            FILE_SIZE=$(wc -c < "./sej95.github.io/pllive.txt" 2>/dev/null || echo "unknown")
-            echo "最终文件大小: $FILE_SIZE 字节"
+            echo "最终文件大小: $(wc -c < "./sej95.github.io/pllive.txt") 字节"
+            echo "文件行数: $(wc -l < "./sej95.github.io/pllive.txt") 行"
+            
+            # 检查文件类型
+            echo "文件类型检查:"
+            if head -1 "./sej95.github.io/pllive.txt" | grep -q "^#EXTM3U"; then
+              echo "✅ 这是M3U直播源文件"
+              # 统计频道数量
+              CHANNEL_COUNT=$(grep -c "^#EXTINF" "./sej95.github.io/pllive.txt" || echo "0")
+              echo "频道数量: $CHANNEL_COUNT"
+            else
+              echo "⚠️ 不是标准M3U格式"
+              echo "文件开头内容:"
+              head -5 "./sej95.github.io/pllive.txt"
+            fi
           fi
