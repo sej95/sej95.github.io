@@ -26,7 +26,7 @@ jobs:
         mkdir -p sej95.github.io
         echo "准备下载目录..."
         
-    - name: Download TV source with optimized settings
+    - name: Download TV source file
       id: download
       run: |
         echo "开始下载直播源文件..."
@@ -37,7 +37,7 @@ jobs:
         
         echo "目标URL: $REMOTE_URL"
         
-        # 方法1: 使用简单的curl命令（模仿你的本地测试）
+        # 方法1: 简单curl下载
         echo "=== 方法1: 简单curl下载 ==="
         curl -s -L \
           -o "$TEMP_FILE" \
@@ -53,7 +53,7 @@ jobs:
           echo "✅ 方法1下载成功"
           echo "文件大小: $FILE_SIZE 字节"
           
-          # 检查文件内容是否有效（不是错误页面）
+          # 检查文件内容
           if head -1 "$TEMP_FILE" | grep -q "MoMo更新\|#genre#\|#EXTM3U\|上海电信"; then
             echo "✅ 文件内容验证通过"
             mv "$TEMP_FILE" "$LOCAL_PATH"
@@ -68,7 +68,7 @@ jobs:
           rm -f "$TEMP_FILE"
         fi
         
-        # 方法2: 如果方法1失败，尝试使用wget
+        # 方法2: wget
         if [ ! -f "$LOCAL_PATH" ] || [ ! -s "$LOCAL_PATH" ]; then
           echo ""
           echo "=== 方法2: 使用wget下载 ==="
@@ -87,28 +87,24 @@ jobs:
             echo "downloaded=true" >> $GITHUB_OUTPUT
             echo "method=wget" >> $GITHUB_OUTPUT
           else
-            echo "❌ wget也失败"
+            echo "❌ wget失败"
             rm -f "$LOCAL_PATH"
           fi
         fi
         
-        # 方法3: 如果还失败，使用带更多参数的curl
+        # 方法3: 详细curl
         if [ ! -f "$LOCAL_PATH" ] || [ ! -s "$LOCAL_PATH" ]; then
           echo ""
           echo "=== 方法3: 详细curl下载 ==="
-          curl -v -L \
+          curl -L \
             -o "$LOCAL_PATH" \
             -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" \
             -H "Accept: text/plain,*/*;q=0.9" \
             -H "Accept-Language: zh-CN,zh;q=0.9" \
             -H "Referer: https://my9.ltd/" \
-            -H "Connection: keep-alive" \
-            -H "Cache-Control: max-age=0" \
             --max-time 90 \
             --retry 3 \
-            --retry-delay 2 \
-            --compressed \
-            "$REMOTE_URL" 2>&1 | tail -20
+            "$REMOTE_URL"
             
           if [ $? -eq 0 ] && [ -s "$LOCAL_PATH" ]; then
             FILE_SIZE=$(wc -c < "$LOCAL_PATH")
@@ -119,7 +115,6 @@ jobs:
           else
             echo "❌ 所有下载方法都失败"
             
-            # 如果有旧文件，使用它
             if [ -f "sej95.github.io/pllive.txt" ] && [ -s "sej95.github.io/pllive.txt" ]; then
               echo "⚠️ 使用现有文件"
               echo "downloaded=true" >> $GITHUB_OUTPUT
@@ -131,20 +126,15 @@ jobs:
           fi
         fi
         
-        # 最终验证
+        # 显示最终信息
         if [ -f "$LOCAL_PATH" ] && [ -s "$LOCAL_PATH" ]; then
           FINAL_SIZE=$(wc -c < "$LOCAL_PATH")
           FINAL_LINES=$(wc -l < "$LOCAL_PATH")
           
           echo ""
           echo "=== 下载完成 ==="
-          echo "使用方法: ${{ steps.download.outputs.method }}"
-          echo "最终文件大小: $FINAL_SIZE 字节"
+          echo "文件大小: $FINAL_SIZE 字节"
           echo "文件行数: $FINAL_LINES 行"
-          
-          # 显示文件头信息
-          echo "文件开头内容:"
-          head -5 "$LOCAL_PATH"
         fi
         
     - name: Check if file changed
@@ -155,37 +145,29 @@ jobs:
         
         FILE_PATH="sej95.github.io/pllive.txt"
         
-        # 确保文件存在
         if [ ! -f "$FILE_PATH" ]; then
           echo "❌ 文件不存在"
           echo "has_change=false" >> $GITHUB_OUTPUT
           exit 0
         fi
         
-        # 简单比较：检查文件大小和内容
-        if [ -f "$FILE_PATH" ]; then
-          CURRENT_HASH=$(md5sum "$FILE_PATH" | cut -d' ' -f1)
-          echo "当前文件MD5: $CURRENT_HASH"
+        CURRENT_HASH=$(md5sum "$FILE_PATH" | cut -d' ' -f1)
+        echo "当前文件MD5: $CURRENT_HASH"
+        
+        if git ls-files "$FILE_PATH" >/dev/null 2>&1; then
+          GIT_HASH=$(git hash-object "$FILE_PATH")
+          echo "Git中文件哈希: $GIT_HASH"
           
-          # 检查Git是否跟踪此文件
-          if git ls-files "$FILE_PATH" >/dev/null 2>&1; then
-            # 获取Git中的文件内容
-            GIT_HASH=$(git hash-object "$FILE_PATH")
-            echo "Git中文件哈希: $GIT_HASH"
-            
-            if [ "$CURRENT_HASH" = "$GIT_HASH" ]; then
-              echo "文件无变化"
-              echo "has_change=false" >> $GITHUB_OUTPUT
-            else
-              echo "检测到文件变化"
-              echo "has_change=true" >> $GITHUB_OUTPUT
-            fi
+          if [ "$CURRENT_HASH" = "$GIT_HASH" ]; then
+            echo "文件无变化"
+            echo "has_change=false" >> $GITHUB_OUTPUT
           else
-            echo "文件未被Git跟踪，是新文件"
+            echo "检测到文件变化"
             echo "has_change=true" >> $GITHUB_OUTPUT
           fi
         else
-          echo "has_change=false" >> $GITHUB_OUTPUT
+          echo "文件未被Git跟踪，是新文件"
+          echo "has_change=true" >> $GITHUB_OUTPUT
         fi
         
     - name: Commit and push changes
@@ -200,32 +182,23 @@ jobs:
           exit 1
         fi
         
-        # 获取文件详细信息
         FILE_SIZE=$(wc -c < "$FILE_PATH")
         FILE_LINES=$(wc -l < "$FILE_PATH")
         FILE_MD5=$(md5sum "$FILE_PATH" | cut -d' ' -f1)
+        METHOD="${{ steps.download.outputs.method }}"
         
-        echo "=== 提交信息 ==="
         echo "文件大小: $FILE_SIZE 字节"
         echo "文件行数: $FILE_LINES 行"
         echo "文件MD5: $FILE_MD5"
+        echo "下载方法: $METHOD"
         
-        # 添加并提交文件
         git add "$FILE_PATH"
         
-        # 创建提交信息
-        COMMIT_MSG="📺 更新直播源文件 - $(date '+%Y-%m-%d %H:%M UTC')
-
-文件统计:
-- 大小: ${FILE_SIZE} 字节
-- 行数: ${FILE_LINES} 行
-- MD5: ${FILE_MD5}
-
-下载方法: ${{ steps.download.outputs.method }}"
+        # 使用单行提交信息避免YAML问题
+        COMMIT_MSG="📺 更新直播源文件 - $(date '+%Y-%m-%d %H:%M UTC') | 大小: ${FILE_SIZE}字节 | 行数: ${FILE_LINES}行 | 方法: ${METHOD}"
         
-        echo -e "$COMMIT_MSG" | git commit -F -
+        git commit -m "$COMMIT_MSG"
         
-        # 推送到仓库
         echo "推送到GitHub..."
         git push
         
@@ -238,7 +211,6 @@ jobs:
         echo "=========================================="
         
         echo "执行时间: $(date)"
-        echo "UTC时间: $(date -u)"
         
         if [ -f "sej95.github.io/pllive.txt" ]; then
           echo ""
@@ -251,13 +223,8 @@ jobs:
           echo "行数: $(wc -l < "sej95.github.io/pllive.txt") 行"
           
           echo ""
-          echo "📝 内容预览 (前3行):"
-          head -3 "sej95.github.io/pllive.txt"
-          
-          echo ""
-          echo "🔍 直播源统计:"
-          echo "分类数量: $(grep -c "^[^#].*,#genre#" "sej95.github.io/pllive.txt" 2>/dev/null || echo "0")"
-          echo "频道总数: $(grep -c "^\S.*,http" "sej95.github.io/pllive.txt" 2>/dev/null || echo "0")"
+          echo "📝 内容预览:"
+          head -5 "sej95.github.io/pllive.txt"
         else
           echo ""
           echo "❌ 错误: 文件未找到"
