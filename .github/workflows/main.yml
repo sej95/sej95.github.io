@@ -6,164 +6,266 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write  # 授予写入仓库的权限
+  contents: write
 
 jobs:
   update-file:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Checkout repository with write permission
+    - name: Checkout repository
       uses: actions/checkout@v4
-      with:
-        # 使用默认的GITHUB_TOKEN，上面已经授予了write权限
-        token: ${{ secrets.GITHUB_TOKEN }}
-        
-    - name: Setup Git identity
+      
+    - name: Setup Git
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
         
-    - name: Create directory structure
+    - name: Prepare directory
       run: |
-        echo "创建目录结构..."
         mkdir -p sej95.github.io
+        echo "准备下载目录..."
         
-    - name: Download TV source file
+    - name: Download TV source with optimized settings
       id: download
       run: |
-        echo "正在下载直播源文件..."
-        echo "URL: https://my9.ltd/tv/pllive.txt"
+        echo "开始下载直播源文件..."
         
-        # 下载文件
-        curl -s -L -o "sej95.github.io/pllive.txt" \
-          -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" \
-          -H "Accept: text/plain,text/html" \
-          -H "Referer: https://my9.ltd/" \
-          --connect-timeout 30 \
+        REMOTE_URL="https://my9.ltd/tv/pllive.txt"
+        LOCAL_PATH="sej95.github.io/pllive.txt"
+        TEMP_FILE="pllive_temp.txt"
+        
+        echo "目标URL: $REMOTE_URL"
+        
+        # 方法1: 使用简单的curl命令（模仿你的本地测试）
+        echo "=== 方法1: 简单curl下载 ==="
+        curl -s -L \
+          -o "$TEMP_FILE" \
+          -H "User-Agent: curl/8.8.0" \
+          -H "Accept: */*" \
           --max-time 60 \
-          --retry 2 \
-          "https://my9.ltd/tv/pllive.txt"
+          "$REMOTE_URL"
+          
+        DOWNLOAD_RESULT=$?
         
-        # 验证下载结果
-        if [ $? -eq 0 ] && [ -f "sej95.github.io/pllive.txt" ]; then
-          FILE_SIZE=$(wc -c < "sej95.github.io/pllive.txt")
-          if [ $FILE_SIZE -gt 0 ]; then
-            echo "✅ 下载成功"
-            echo "文件大小: ${FILE_SIZE} 字节"
-            echo "文件行数: $(wc -l < "sej95.github.io/pllive.txt") 行"
-            
-            # 输出到步骤结果
+        if [ $DOWNLOAD_RESULT -eq 0 ] && [ -f "$TEMP_FILE" ] && [ -s "$TEMP_FILE" ]; then
+          FILE_SIZE=$(wc -c < "$TEMP_FILE")
+          echo "✅ 方法1下载成功"
+          echo "文件大小: $FILE_SIZE 字节"
+          
+          # 检查文件内容是否有效（不是错误页面）
+          if head -1 "$TEMP_FILE" | grep -q "MoMo更新\|#genre#\|#EXTM3U\|上海电信"; then
+            echo "✅ 文件内容验证通过"
+            mv "$TEMP_FILE" "$LOCAL_PATH"
             echo "downloaded=true" >> $GITHUB_OUTPUT
-            echo "file_size=${FILE_SIZE}" >> $GITHUB_OUTPUT
+            echo "method=simple_curl" >> $GITHUB_OUTPUT
           else
-            echo "❌ 下载的文件为空"
-            echo "downloaded=false" >> $GITHUB_OUTPUT
+            echo "❌ 文件内容无效"
+            rm -f "$TEMP_FILE"
           fi
         else
-          echo "❌ 下载失败"
-          echo "downloaded=false" >> $GITHUB_OUTPUT
-          exit 1
+          echo "❌ 方法1失败，错误代码: $DOWNLOAD_RESULT"
+          rm -f "$TEMP_FILE"
         fi
         
-    - name: Check for file changes
+        # 方法2: 如果方法1失败，尝试使用wget
+        if [ ! -f "$LOCAL_PATH" ] || [ ! -s "$LOCAL_PATH" ]; then
+          echo ""
+          echo "=== 方法2: 使用wget下载 ==="
+          wget \
+            --timeout=45 \
+            --tries=3 \
+            --user-agent="Mozilla/5.0" \
+            --no-check-certificate \
+            -O "$LOCAL_PATH" \
+            "$REMOTE_URL"
+            
+          if [ $? -eq 0 ] && [ -s "$LOCAL_PATH" ]; then
+            FILE_SIZE=$(wc -c < "$LOCAL_PATH")
+            echo "✅ wget下载成功"
+            echo "文件大小: $FILE_SIZE 字节"
+            echo "downloaded=true" >> $GITHUB_OUTPUT
+            echo "method=wget" >> $GITHUB_OUTPUT
+          else
+            echo "❌ wget也失败"
+            rm -f "$LOCAL_PATH"
+          fi
+        fi
+        
+        # 方法3: 如果还失败，使用带更多参数的curl
+        if [ ! -f "$LOCAL_PATH" ] || [ ! -s "$LOCAL_PATH" ]; then
+          echo ""
+          echo "=== 方法3: 详细curl下载 ==="
+          curl -v -L \
+            -o "$LOCAL_PATH" \
+            -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" \
+            -H "Accept: text/plain,*/*;q=0.9" \
+            -H "Accept-Language: zh-CN,zh;q=0.9" \
+            -H "Referer: https://my9.ltd/" \
+            -H "Connection: keep-alive" \
+            -H "Cache-Control: max-age=0" \
+            --max-time 90 \
+            --retry 3 \
+            --retry-delay 2 \
+            --compressed \
+            "$REMOTE_URL" 2>&1 | tail -20
+            
+          if [ $? -eq 0 ] && [ -s "$LOCAL_PATH" ]; then
+            FILE_SIZE=$(wc -c < "$LOCAL_PATH")
+            echo "✅ 详细curl下载成功"
+            echo "文件大小: $FILE_SIZE 字节"
+            echo "downloaded=true" >> $GITHUB_OUTPUT
+            echo "method=detailed_curl" >> $GITHUB_OUTPUT
+          else
+            echo "❌ 所有下载方法都失败"
+            
+            # 如果有旧文件，使用它
+            if [ -f "sej95.github.io/pllive.txt" ] && [ -s "sej95.github.io/pllive.txt" ]; then
+              echo "⚠️ 使用现有文件"
+              echo "downloaded=true" >> $GITHUB_OUTPUT
+              echo "method=existing" >> $GITHUB_OUTPUT
+            else
+              echo "downloaded=false" >> $GITHUB_OUTPUT
+              exit 1
+            fi
+          fi
+        fi
+        
+        # 最终验证
+        if [ -f "$LOCAL_PATH" ] && [ -s "$LOCAL_PATH" ]; then
+          FINAL_SIZE=$(wc -c < "$LOCAL_PATH")
+          FINAL_LINES=$(wc -l < "$LOCAL_PATH")
+          
+          echo ""
+          echo "=== 下载完成 ==="
+          echo "使用方法: ${{ steps.download.outputs.method }}"
+          echo "最终文件大小: $FINAL_SIZE 字节"
+          echo "文件行数: $FINAL_LINES 行"
+          
+          # 显示文件头信息
+          echo "文件开头内容:"
+          head -5 "$LOCAL_PATH"
+        fi
+        
+    - name: Check if file changed
       id: check-change
       if: steps.download.outputs.downloaded == 'true'
       run: |
-        echo "检查文件是否有变化..."
+        echo "检查文件变化..."
         
-        # 先添加所有更改到暂存区，以便git diff能正确比较
-        git add -N "sej95.github.io/pllive.txt"
+        FILE_PATH="sej95.github.io/pllive.txt"
         
-        # 检查是否有未暂存的更改
-        if git diff --quiet -- "sej95.github.io/pllive.txt" 2>/dev/null; then
-          echo "文件内容无变化"
+        # 确保文件存在
+        if [ ! -f "$FILE_PATH" ]; then
+          echo "❌ 文件不存在"
           echo "has_change=false" >> $GITHUB_OUTPUT
-        else
-          echo "检测到文件变化"
-          echo "has_change=true" >> $GITHUB_OUTPUT
-          
-          # 显示简要变化信息
-          echo "变化摘要:"
-          git diff --stat -- "sej95.github.io/pllive.txt"
+          exit 0
         fi
         
-    - name: Commit and push if changed
+        # 简单比较：检查文件大小和内容
+        if [ -f "$FILE_PATH" ]; then
+          CURRENT_HASH=$(md5sum "$FILE_PATH" | cut -d' ' -f1)
+          echo "当前文件MD5: $CURRENT_HASH"
+          
+          # 检查Git是否跟踪此文件
+          if git ls-files "$FILE_PATH" >/dev/null 2>&1; then
+            # 获取Git中的文件内容
+            GIT_HASH=$(git hash-object "$FILE_PATH")
+            echo "Git中文件哈希: $GIT_HASH"
+            
+            if [ "$CURRENT_HASH" = "$GIT_HASH" ]; then
+              echo "文件无变化"
+              echo "has_change=false" >> $GITHUB_OUTPUT
+            else
+              echo "检测到文件变化"
+              echo "has_change=true" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "文件未被Git跟踪，是新文件"
+            echo "has_change=true" >> $GITHUB_OUTPUT
+          fi
+        else
+          echo "has_change=false" >> $GITHUB_OUTPUT
+        fi
+        
+    - name: Commit and push changes
       if: steps.check-change.outputs.has_change == 'true'
       run: |
-        echo "准备提交更改..."
+        echo "准备提交文件..."
         
-        # 获取详细的文件信息
         FILE_PATH="sej95.github.io/pllive.txt"
+        
+        if [ ! -f "$FILE_PATH" ]; then
+          echo "❌ 文件不存在，无法提交"
+          exit 1
+        fi
+        
+        # 获取文件详细信息
         FILE_SIZE=$(wc -c < "$FILE_PATH")
         FILE_LINES=$(wc -l < "$FILE_PATH")
+        FILE_MD5=$(md5sum "$FILE_PATH" | cut -d' ' -f1)
         
-        echo "文件信息:"
-        echo "- 大小: ${FILE_SIZE} 字节"
-        echo "- 行数: ${FILE_LINES} 行"
+        echo "=== 提交信息 ==="
+        echo "文件大小: $FILE_SIZE 字节"
+        echo "文件行数: $FILE_LINES 行"
+        echo "文件MD5: $FILE_MD5"
         
-        # 添加文件到Git
+        # 添加并提交文件
         git add "$FILE_PATH"
         
-        # 创建有意义的提交信息
-        TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
-        COMMIT_MESSAGE="📺 更新直播源文件 - ${TIMESTAMP} UTC"
-        COMMIT_MESSAGE+="\n\n文件信息:"
-        COMMIT_MESSAGE+="\n- 大小: ${FILE_SIZE} 字节"
-        COMMIT_MESSAGE+="\n- 行数: ${FILE_LINES} 行"
+        # 创建提交信息
+        COMMIT_MSG="📺 更新直播源文件 - $(date '+%Y-%m-%d %H:%M UTC')
+
+文件统计:
+- 大小: ${FILE_SIZE} 字节
+- 行数: ${FILE_LINES} 行
+- MD5: ${FILE_MD5}
+
+下载方法: ${{ steps.download.outputs.method }}"
         
-        # 提交更改（支持多行提交信息）
-        echo -e "$COMMIT_MESSAGE" | git commit -F - "$FILE_PATH"
+        echo -e "$COMMIT_MSG" | git commit -F -
         
         # 推送到仓库
-        echo "推送到GitHub仓库..."
-        git push origin HEAD:main
+        echo "推送到GitHub..."
+        git push
         
         echo "✅ 提交并推送完成"
         
-    - name: No changes to commit
-      if: steps.check-change.outputs.has_change == 'false'
+    - name: Show final status
       run: |
-        echo "✅ 文件无变化，无需提交"
-        echo "当前文件信息:"
-        ls -lh "sej95.github.io/pllive.txt"
+        echo "=========================================="
+        echo "          任务执行完成"
+        echo "=========================================="
         
-    - name: Final verification and summary
-      run: |
-        echo "========================================"
-        echo "          任务执行完成摘要"
-        echo "========================================"
-        
-        echo "执行时间: $(date '+%Y-%m-%d %H:%M:%S UTC')"
-        echo "对应北京时间: $(date -d '+8 hours' '+%Y-%m-%d %H:%M:%S')"
+        echo "执行时间: $(date)"
+        echo "UTC时间: $(date -u)"
         
         if [ -f "sej95.github.io/pllive.txt" ]; then
           echo ""
-          echo "✅ 文件已成功保存到仓库"
-          echo "文件路径: sej95.github.io/pllive.txt"
-          echo "文件大小: $(wc -c < "sej95.github.io/pllive.txt") 字节"
-          echo "文件行数: $(wc -l < "sej95.github.io/pllive.txt") 行"
+          echo "✅ 文件状态:"
+          ls -lh "sej95.github.io/pllive.txt"
           
-          # 检查是否为M3U格式
           echo ""
-          echo "文件格式检查:"
-          if head -1 "sej95.github.io/pllive.txt" | grep -q "^#EXTM3U"; then
-            echo "✅ 是有效的M3U格式直播源"
-            CHANNEL_COUNT=$(grep -c "^#EXTINF" "sej95.github.io/pllive.txt" 2>/dev/null || echo "0")
-            echo "  包含频道数: ${CHANNEL_COUNT}"
-          else
-            echo "⚠️ 不是标准M3U格式"
-            echo "文件开头内容:"
-            head -3 "sej95.github.io/pllive.txt"
-          fi
+          echo "📊 文件统计:"
+          echo "大小: $(wc -c < "sej95.github.io/pllive.txt") 字节"
+          echo "行数: $(wc -l < "sej95.github.io/pllive.txt") 行"
+          
+          echo ""
+          echo "📝 内容预览 (前3行):"
+          head -3 "sej95.github.io/pllive.txt"
+          
+          echo ""
+          echo "🔍 直播源统计:"
+          echo "分类数量: $(grep -c "^[^#].*,#genre#" "sej95.github.io/pllive.txt" 2>/dev/null || echo "0")"
+          echo "频道总数: $(grep -c "^\S.*,http" "sej95.github.io/pllive.txt" 2>/dev/null || echo "0")"
         else
           echo ""
-          echo "❌ 文件未找到"
+          echo "❌ 错误: 文件未找到"
         fi
         
         echo ""
-        echo "Git状态:"
+        echo "📂 仓库状态:"
         git status --short
         
         echo ""
-        echo "下次自动执行时间: UTC 22:00 (北京时间 06:00)"
+        echo "⏰ 下次自动执行: 每天 UTC 22:00 (北京时间 06:00)"
