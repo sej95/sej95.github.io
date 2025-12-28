@@ -1,24 +1,86 @@
-name: Daily URL Visit with Logging
+name: Copy Remote File to Repository
 
 on:
   schedule:
-    - cron: '18 18 * * *'  # 中国时间凌晨2点 = UTC 18:00
+    - cron: '0 22 * * *'  # 北京时间早上6点 = UTC 22:00
   workflow_dispatch:      # 可手动触发
+  push:                  # 当仓库有push时也触发
+    branches:
+      - main
 
 jobs:
-  visit-url:
+  copy-file:
     runs-on: ubuntu-latest
     steps:
-      - name: Visit URL and log result
-        run: |
-          URL="https://my9.ltd/iplog.php"
-          echo "开始访问 $URL"
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           
-          # 使用 curl 请求，并获取 HTTP 状态码
-          HTTP_STATUS=$(curl -o /dev/null -s -w "%{http_code}" $URL)
+      - name: Set up Git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          
+      - name: Download remote file
+        run: |
+          REMOTE_URL="https://my9.ltd/tv/pllive.txt"
+          LOCAL_PATH="./sej95.github.io/pllive.txt"
+          
+          echo "开始下载文件: $REMOTE_URL"
+          echo "当前时间: $(date)"
+          
+          # 创建目标目录（如果不存在）
+          mkdir -p ./sej95.github.io
+          
+          # 使用 curl 下载文件，添加超时和重试机制
+          HTTP_STATUS=$(curl -f -L -o "$LOCAL_PATH" -s -w "%{http_code}" --max-time 30 --retry 2 "$REMOTE_URL")
           
           if [ "$HTTP_STATUS" -eq 200 ]; then
-            echo "✅ 访问成功: $URL (HTTP $HTTP_STATUS)"
+            echo "✅ 文件下载成功: $REMOTE_URL"
+            echo "文件已保存到: $LOCAL_PATH"
+            
+            # 检查文件内容
+            FILE_SIZE=$(stat -f%z "$LOCAL_PATH" 2>/dev/null || stat -c%s "$LOCAL_PATH" 2>/dev/null || echo "unknown")
+            echo "文件大小: $FILE_SIZE 字节"
+            
+            # 显示前几行内容预览
+            echo "文件预览(前5行):"
+            head -5 "$LOCAL_PATH"
           else
-            echo "❌ 访问失败: $URL (HTTP $HTTP_STATUS)"
+            echo "❌ 文件下载失败: $REMOTE_URL (HTTP $HTTP_STATUS)"
+            exit 1
           fi
+          
+      - name: Commit and push if changes
+        run: |
+          # 检查文件是否有变化
+          if git diff --quiet ./sej95.github.io/pllive.txt; then
+            echo "⚠️ 文件内容无变化，无需提交"
+          else
+            echo "检测到文件变化，提交更新..."
+            
+            # 显示具体变化
+            echo "文件差异:"
+            git diff ./sej95.github.io/pllive.txt
+            
+            # 添加文件
+            git add ./sej95.github.io/pllive.txt
+            
+            # 提交更改
+            git commit -m "🔄 自动更新 pllive.txt - $(date '+%Y-%m-%d %H:%M:%S') [北京时间]"
+            
+            # 推送到仓库
+            git push origin main
+            
+            echo "✅ 文件已提交并推送"
+          fi
+          
+      - name: Clean up
+        run: |
+          echo "任务执行完成时间: $(date)"
+          echo "当前UTC时间: $(date -u)"
+          echo "任务执行详情:"
+          echo "- 触发时间: 每天北京时间 6:00 (UTC 22:00)"
+          echo "- 源文件: https://my9.ltd/tv/pllive.txt"
+          echo "- 目标位置: /sej95.github.io/pllive.txt"
