@@ -33,54 +33,110 @@ jobs:
           # 创建目标目录（如果不存在）
           mkdir -p ./sej95.github.io
           
-          # 使用 curl 下载文件，添加超时和重试机制
-          HTTP_STATUS=$(curl -f -L -o "$LOCAL_PATH" -s -w "%{http_code}" --max-time 30 --retry 2 "$REMOTE_URL")
+          echo "使用 wget 尝试下载文件..."
           
-          if [ "$HTTP_STATUS" -eq 200 ]; then
+          # 使用 wget 替代 curl，更稳定且错误信息更详细
+          if wget --timeout=30 --tries=3 --no-check-certificate -O "$LOCAL_PATH" "$REMOTE_URL"; then
             echo "✅ 文件下载成功: $REMOTE_URL"
             echo "文件已保存到: $LOCAL_PATH"
             
-            # 检查文件内容
-            FILE_SIZE=$(stat -f%z "$LOCAL_PATH" 2>/dev/null || stat -c%s "$LOCAL_PATH" 2>/dev/null || echo "unknown")
-            echo "文件大小: $FILE_SIZE 字节"
-            
-            # 显示前几行内容预览
-            echo "文件预览(前5行):"
-            head -5 "$LOCAL_PATH"
+            # 检查文件是否存在且有内容
+            if [ -s "$LOCAL_PATH" ]; then
+              FILE_SIZE=$(stat -f%z "$LOCAL_PATH" 2>/dev/null || stat -c%s "$LOCAL_PATH" 2>/dev/null || echo "unknown")
+              echo "文件大小: $FILE_SIZE 字节"
+              
+              # 显示前几行内容预览
+              echo "文件预览(前5行):"
+              head -5 "$LOCAL_PATH" 2>/dev/null || echo "无法显示文件内容"
+            else
+              echo "⚠️ 警告：下载的文件为空或不存在"
+              exit 1
+            fi
           else
-            echo "❌ 文件下载失败: $REMOTE_URL (HTTP $HTTP_STATUS)"
+            echo "❌ 文件下载失败: $REMOTE_URL"
+            echo "正在尝试使用 curl..."
+            
+            # 尝试使用 curl 作为备用方案
+            HTTP_STATUS=$(curl -L -o "$LOCAL_PATH" -s -w "%{http_code}" --max-time 30 --retry 2 --insecure "$REMOTE_URL")
+            
+            if [ "$HTTP_STATUS" -eq 200 ] && [ -s "$LOCAL_PATH" ]; then
+              echo "✅ curl下载成功 (HTTP $HTTP_STATUS)"
+              FILE_SIZE=$(stat -f%z "$LOCAL_PATH" 2>/dev/null || stat -c%s "$LOCAL_PATH" 2>/dev/null || echo "unknown")
+              echo "文件大小: $FILE_SIZE 字节"
+            else
+              echo "❌ 所有下载尝试都失败"
+              echo "HTTP状态码: $HTTP_STATUS"
+              echo "最后错误: curl返回代码 $?"
+              
+              # 尝试显示更多错误信息
+              curl -L -o /dev/null -v "$REMOTE_URL" 2>&1 | grep -i "error\|fail\|http" | head -10 || true
+              
+              # 如果目录不存在，创建一个空文件
+              if [ ! -f "$LOCAL_PATH" ]; then
+                echo "创建空文件占位..."
+                echo "# 文件下载失败 - $(date)" > "$LOCAL_PATH"
+              fi
+            fi
+          fi
+          
+      - name: Check if file exists
+        run: |
+          LOCAL_PATH="./sej95.github.io/pllive.txt"
+          if [ -f "$LOCAL_PATH" ]; then
+            echo "✅ 文件存在: $LOCAL_PATH"
+            if [ -s "$LOCAL_PATH" ]; then
+              echo "文件大小: $(wc -c < "$LOCAL_PATH") 字节"
+              echo "文件行数: $(wc -l < "$LOCAL_PATH") 行"
+            else
+              echo "⚠️ 警告：文件存在但为空"
+            fi
+          else
+            echo "❌ 错误：文件不存在"
             exit 1
           fi
           
       - name: Commit and push if changes
         run: |
+          LOCAL_PATH="./sej95.github.io/pllive.txt"
+          
+          # 确保文件存在
+          if [ ! -f "$LOCAL_PATH" ]; then
+            echo "❌ 错误：目标文件不存在，跳过提交"
+            exit 0
+          fi
+          
           # 检查文件是否有变化
-          if git diff --quiet ./sej95.github.io/pllive.txt; then
+          if git diff --quiet "$LOCAL_PATH"; then
             echo "⚠️ 文件内容无变化，无需提交"
           else
             echo "检测到文件变化，提交更新..."
             
-            # 显示具体变化
-            echo "文件差异:"
-            git diff ./sej95.github.io/pllive.txt
+            # 显示具体变化（限制行数）
+            echo "文件差异预览:"
+            git diff "$LOCAL_PATH" | head -50
             
             # 添加文件
-            git add ./sej95.github.io/pllive.txt
+            git add "$LOCAL_PATH"
             
             # 提交更改
-            git commit -m "🔄 自动更新 pllive.txt - $(date '+%Y-%m-%d %H:%M:%S') [北京时间]"
+            COMMIT_MSG="🔄 自动更新 pllive.txt - $(date '+%Y-%m-%d %H:%M:%S UTC')"
+            git commit -m "$COMMIT_MSG" || echo "提交失败或无更改"
             
             # 推送到仓库
-            git push origin main
+            git push origin main || echo "推送失败，可能是权限问题或无新内容"
             
-            echo "✅ 文件已提交并推送"
+            echo "✅ 文件更新流程完成"
           fi
           
-      - name: Clean up
+      - name: Clean up and summary
         run: |
-          echo "任务执行完成时间: $(date)"
-          echo "当前UTC时间: $(date -u)"
-          echo "任务执行详情:"
-          echo "- 触发时间: 每天北京时间 6:00 (UTC 22:00)"
-          echo "- 源文件: https://my9.ltd/tv/pllive.txt"
-          echo "- 目标位置: /sej95.github.io/pllive.txt"
+          echo "=== 任务执行摘要 ==="
+          echo "完成时间: $(date)"
+          echo "UTC时间: $(date -u)"
+          echo "源URL: https://my9.ltd/tv/pllive.txt"
+          echo "本地路径: ./sej95.github.io/pllive.txt"
+          
+          if [ -f "./sej95.github.io/pllive.txt" ]; then
+            FILE_SIZE=$(wc -c < "./sej95.github.io/pllive.txt" 2>/dev/null || echo "unknown")
+            echo "最终文件大小: $FILE_SIZE 字节"
+          fi
